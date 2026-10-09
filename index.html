@@ -641,9 +641,9 @@ button{cursor:pointer}
       if (!uid || !db || applyingRemote) return;
       db.collection('users').doc(uid).collection(col).doc(id).delete().catch(function () {});
     }
-    // 把本機 store 的三個寫入方法包一層：本機新增／修改／刪除時，如果目前有登入，就一併把同一筆資料鏡射到雲端；
+    // 把本機 store 的四個寫入方法包一層：本機新增／修改／刪除／匯入備份時，如果目前有登入，就一併把同一筆資料鏡射到雲端；
     // 沒有登入、或正在套用從雲端來的變動時，cloudWrite/cloudDelete 會直接跳過，不會真的送出網路請求。
-    var _create = store.create, _patch = store.patch, _remove = store.remove, _dump = store.dump;
+    var _create = store.create, _patch = store.patch, _remove = store.remove, _merge = store.merge, _dump = store.dump;
     store.create = function (col, id, d) {
       var full = Object.assign({ id: id }, d);
       cloudWrite(col, id, full);
@@ -657,6 +657,19 @@ button{cursor:pointer}
     store.remove = function (col, id) {
       cloudDelete(col, id);
       return _remove(col, id);
+    };
+    // store.merge()（匯入備份用）直接整批塞進本機資料，不是逐筆呼叫 create/patch，原本沒有被包到鏡射邏輯裡，
+    // 會變成「匯入備份只進本機、完全沒有同步到雲端」。這裡在真正 merge 完成後，把這批資料也逐筆鏡射寫到雲端。
+    store.merge = function (inc) {
+      var n = _merge(inc);
+      CLOUD_COLS.forEach(function (col) {
+        (Array.isArray(inc[col]) ? inc[col] : []).forEach(function (it) {
+          if (!it || typeof it !== 'object' || typeof it.id !== 'string' || !it.id) return;
+          var r = _dump()[col].find(function (x) { return x.id === it.id; });
+          if (r) cloudWrite(col, it.id, r);
+        });
+      });
+      return n;
     };
     // 第一次連上一個帳號時，把這台裝置本機已有、雲端還沒有的資料補一份上雲端——雙向合併，不會互相覆蓋掉對方；
     // 雲端原本就有的資料，則交給 startSync() 的初次訂閱自動拉下來，不在這裡重複處理。
