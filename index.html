@@ -1,0 +1,2450 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#2B4A94">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="日語手帳">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#F2F4F8; --surface:#FFFFFF; --ink:#18213A; --muted:#5B6782; --line:#DCE1EB;
+  --accent:#2B4A94; --accent-ink:#FFFFFF; --accent-soft:#E3E9F7;
+  --warn:#8A5200; --warn-soft:#FFF0D2; --danger:#B3261E; --dim-red:#CC1B1B;
+  --f-zh:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-ja:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --f-min:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    --bg:#0F131C; --surface:#171D2A; --ink:#E9EDF6; --muted:#9AA6C0; --line:#28314A;
+    --accent:#8FAAF0; --accent-ink:#0F1730; --accent-soft:#1F2A47;
+    --warn:#F2C572; --warn-soft:#3A2E14; --danger:#F2867F; --dim-red:#FF6B6B;
+  }
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:15px/1.55 var(--f-zh);-webkit-text-size-adjust:100%}
+:lang(ja){font-family:var(--f-ja)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.app{max-width:600px;margin:0 auto;padding-inline:max(16px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right));padding-block:calc(16px + env(safe-area-inset-top,0px)) calc(96px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.top h1{margin:0;font:700 28px/1.2 var(--f-min);letter-spacing:.04em}
+.top p{margin:2px 0 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.notice{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding:10px 10px 10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;line-height:1.5}
+.notice .btn{background:transparent;border-color:currentColor;color:inherit}
+
+.compose{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.lbl{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
+.compose textarea{display:block;width:100%;min-height:56px;max-height:220px;padding:6px 0;border:0;outline:0;background:transparent;resize:none;font-size:18px;line-height:1.5}
+.compose textarea::placeholder{color:var(--muted);opacity:.8}
+.compose-f{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+.hint{font-size:12px;color:var(--muted);line-height:1.5}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:500;white-space:nowrap}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.55;cursor:default}
+
+.pending{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:8px 8px 8px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:14px}
+.pending .btn{background:transparent;border-color:currentColor;color:inherit}
+
+.bar{display:flex;align-items:center;gap:12px;margin:22px 0 4px}
+.search{position:relative;flex:1;min-width:0}
+.search .ic{position:absolute;left:12px;top:50%;translate:0 -50%;color:var(--muted);width:18px;height:18px}
+.search input{width:100%;min-height:42px;padding:0 12px 0 38px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.list{list-style:none;margin:0;padding:0}
+.empty{padding:36px 8px;text-align:center;color:var(--muted);font-size:14px;line-height:1.7}
+.list>li{display:flex;align-items:center;border-bottom:1px solid var(--line)}
+.list>li:last-child{border-bottom:0}
+.row,.g{display:block;width:100%;text-align:left;padding:14px 4px;border:0;background:none}
+.list>li>.row,.list>li>.g{width:auto;flex:1 1 auto;min-width:0}
+.row{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:14px;align-items:center}
+.row:active,.g:active{background:var(--accent-soft)}
+.rd{font-size:12px;color:var(--muted);line-height:1.3;letter-spacing:.04em}
+.hw{font:600 22px/1.3 var(--f-min);overflow-wrap:anywhere}
+.mn{font-size:15px;overflow-wrap:anywhere}
+.pos{margin-top:2px;font-size:12px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn);font-size:12px}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.g-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.g-t{font:700 18px/1.4 var(--f-min);overflow-wrap:anywhere}
+.g-d{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.g-p{margin-top:4px;color:var(--muted);font-size:14px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line;overflow-wrap:anywhere}
+.drag-handle{touch-action:none;color:var(--muted);cursor:grab;flex:none}
+.drag-handle:active{cursor:grabbing}
+.list>li.dragging{position:relative;z-index:5;background:var(--surface);box-shadow:0 6px 18px rgba(20,30,60,.2);border-radius:10px;opacity:.94}
+
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:58px;border:0;background:none;color:var(--muted);font-size:12px;letter-spacing:.06em}
+.tab b{font:700 20px/1.2 var(--f-min)}
+.tab[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 2px 0 var(--accent)}
+.fab{position:fixed;z-index:11;right:max(16px,calc((100vw - 600px)/2 + 16px));bottom:calc(76px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(20,30,60,.28)}
+.fab .ic{width:26px;height:26px}
+
+.sheet{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}}
+.sheet-h{display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top,0px)) 8px 8px;background:var(--surface);border-bottom:1px solid var(--line)}
+.sheet-t{flex:1;min-width:0;font-weight:700}
+.status{font-size:12px;color:var(--muted);margin-inline:4px 10px}
+.ib{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:44px;padding:0 8px;border:0;border-radius:10px;background:none;color:var(--ink)}
+.ib.danger{color:var(--danger)}
+.ib.armed{background:var(--danger);color:#fff;font-size:14px;padding:0 12px}
+.ib.tint{color:var(--accent);font-size:13px}
+.ib.star,.star-filter{color:var(--muted)}
+.ib.star.on,.star-filter[aria-pressed="true"]{color:var(--warn)}
+.ib.star.on .ic,.star-filter[aria-pressed="true"] .ic{fill:currentColor}
+.tgl{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px;white-space:nowrap;flex:none}
+.tgl[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tgl .ic{width:16px;height:16px}
+.sheet-b{flex:1;overflow:auto;overscroll-behavior:contain;padding:16px 16px calc(28px + env(safe-area-inset-bottom,0px))}
+.sheet-in{max-width:600px;margin:0 auto}
+.f{display:block;margin-bottom:14px}
+.f>span{display:block;margin-bottom:4px;font-size:12px;letter-spacing:.06em;color:var(--muted)}
+.f input,.f textarea{display:block;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;line-height:1.55}
+.f textarea{resize:vertical;min-height:70px}
+.f .big{font:600 24px/1.3 var(--f-min)}
+.f input:focus,.f textarea:focus,.g-title:focus,.g-body:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.g-title{display:block;width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:700 22px/1.4 var(--f-min)}
+.scanbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin:12px 0}
+.scanbar .hint{flex:1 1 180px}
+.scanbar select{min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px;max-width:100%}
+.g-body{display:block;width:100%;min-height:50vh;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;line-height:1.8;resize:none;white-space:pre-wrap}
+.sheet-actions{display:flex;gap:10px;margin-top:6px}
+.sec{margin:0 0 22px}
+.sec h2{margin:0 0 6px;font-size:13px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+.sec p{margin:0 0 10px;font-size:14px;line-height:1.6}
+.sec .btn{margin-bottom:10px}
+.chk{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.5}
+.chk input{width:22px;height:22px;margin:0;flex:none;accent-color:var(--accent)}
+.small{font-size:12px;color:var(--muted)}
+
+.segrow{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:0 0 10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg-b{min-height:38px;padding:0 18px;border:0;background:none;font-size:14px}
+.seg-b[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.gview{padding:2px 0}
+.tx{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.8;margin:0 0 14px}
+.tw{margin:0 0 18px}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tbl{border-collapse:collapse;width:100%;font-size:15px;line-height:1.5}
+.tbl th,.tbl td{border:1px solid var(--line);padding:8px 10px;min-width:72px;vertical-align:top;text-align:left;overflow-wrap:anywhere;white-space:pre-wrap}
+.tbl th{background:var(--accent-soft);font-weight:700}
+.tbl tr>*:first-child{border-left:0}.tbl tr>*:last-child{border-right:0}
+.tbl tr:first-child>*{border-top:0}.tbl tr:last-child>*{border-bottom:0}
+.tbl th:focus,.tbl td:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.tbl td.dimcell,.tbl th.dimcell{color:var(--dim-red)}
+.gview.pick .tbl td,.gview.pick .tbl th{cursor:pointer}
+.gview.pick .tbl td:active,.gview.pick .tbl th:active{background:var(--accent-soft)}
+.tacts{display:flex;gap:8px;margin-top:8px}
+.toast{position:fixed;z-index:40;left:16px;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));max-width:568px;margin:0 auto;padding:10px 14px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.5}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.dot{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div id="notice" class="notice" hidden><span id="noticeTxt"></span><button id="noticeBtn" class="btn sm" type="button" hidden></button></div>
+  <header class="top">
+    <div>
+      <h1 lang="ja">日語手帳</h1>
+      <p id="counts" aria-live="polite"></p>
+    </div>
+    <button id="menuBtn" class="ib tint" type="button" aria-label="備份與設定"><span data-icon="download"></span>備份</button>
+  </header>
+
+  <section id="view-words" aria-label="單字">
+    <div class="compose">
+      <label for="wordsIn" class="lbl">新增單字</label>
+      <textarea id="wordsIn" rows="2" lang="ja" placeholder="輸入單字，一行一個" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>
+      <div class="compose-f">
+        <span class="hint">日文或英文都可以，會自動補上讀音與中文意思。</span>
+        <button id="addBtn" class="btn primary" type="button">加入並翻譯</button>
+      </div>
+    </div>
+    <div id="pendingBar" class="pending" hidden>
+      <span id="pendingTxt"></span>
+      <button id="pendingBtn" class="btn sm" type="button">全部翻譯</button>
+    </div>
+    <div class="bar">
+      <label class="search"><span class="sr">搜尋單字</span><span data-icon="search"></span><input id="qWords" type="search" placeholder="搜尋單字、讀音、意思" autocomplete="off"></label>
+      <button id="wStarFilter" class="ib star-filter" type="button" aria-label="只看加星號的單字" aria-pressed="false"><span data-icon="star"></span></button>
+      <span id="wCount" class="count"></span>
+    </div>
+    <ul id="wordList" class="list"></ul>
+  </section>
+
+  <section id="view-grammar" aria-label="文法" hidden>
+    <div class="bar" style="margin-top:0">
+      <label class="search"><span class="sr">搜尋文法</span><span data-icon="search"></span><input id="qGrammar" type="search" placeholder="搜尋文法筆記" autocomplete="off"></label>
+      <button id="gStarFilter" class="ib star-filter" type="button" aria-label="只看加星號的文法筆記" aria-pressed="false"><span data-icon="star"></span></button>
+      <button id="gReorderBtn" class="tgl" type="button" aria-pressed="false"><span data-icon="sort"></span>排序</button>
+      <span id="gCount" class="count"></span>
+    </div>
+    <ul id="gList" class="list"></ul>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="主要分頁">
+  <div class="tabs-in" role="tablist">
+    <button class="tab" id="tab-words" role="tab" type="button" aria-selected="true"><b lang="ja">あ</b>單字</button>
+    <button class="tab" id="tab-grammar" role="tab" type="button" aria-selected="false"><b lang="ja">文</b>文法</button>
+  </div>
+</nav>
+<button id="fab" class="fab" type="button" aria-label="新增文法筆記" hidden><span data-icon="plus"></span></button>
+<div id="sheet" class="sheet" role="dialog" aria-modal="true" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var CDN = {
+    tesseract: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+    kuroshiro: 'https://cdn.jsdelivr.net/npm/kuroshiro@1/dist/kuroshiro.min.js',
+    analyzer: 'https://cdn.jsdelivr.net/npm/kuroshiro-analyzer-kuromoji@1/dist/kuroshiro-analyzer-kuromoji.min.js',
+    dict: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/'
+  };
+
+  var S = { tab: 'words', words: [], grammar: [], q: { words: '', grammar: '' }, busy: new Set(),
+            loaded: { words: false, grammar: false }, starOnly: { words: false, grammar: false }, reorderGrammar: false };
+
+  function $(id) { return document.getElementById(id); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function str(v) { return typeof v === 'string' ? v.trim() : ''; }
+
+  // ---------- tiny DOM helpers (all text goes through textContent) ----------
+  function appendKids(el, k) {
+    if (k == null || k === false) return;
+    if (Array.isArray(k)) { k.forEach(function (x) { appendKids(el, x); }); return; }
+    el.append(k.nodeType ? k : document.createTextNode(String(k)));
+  }
+  function h(tag, props) {
+    var el = document.createElement(tag);
+    if (props) for (var k in props) {
+      var v = props[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'text') el.textContent = v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : String(v));
+    }
+    for (var i = 2; i < arguments.length; i++) appendKids(el, arguments[i]);
+    return el;
+  }
+  var ICON = {
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    camera: '<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    back: '<path d="M15 5l-7 7 7 7"/>',
+    search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/>',
+    trash: '<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/>',
+    refresh: '<path d="M20 11a8 8 0 10-2.3 5.7M20 5v6h-6"/>',
+    stop: '<rect x="7" y="7" width="10" height="10" rx="1.5"/>',
+    download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+    upload: '<path d="M12 16V5M7 9l5-5 5 5M5 20h14"/>',
+    star: '<path d="M12 3.5l2.6 5.6 6.1.8-4.5 4.3 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.3 6.1-.8z"/>',
+    grip: '<path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/>',
+    sort: '<path d="M7 15l5 5 5-5M7 9l5-5 5 5"/>'
+  };
+  function icon(name) {
+    var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 24 24');
+    s.setAttribute('class', 'ic');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = ICON[name];
+    return s;
+  }
+  function grow(el, max) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight + 2, max || 99999) + 'px';
+  }
+  var toastTimer;
+  function toast(msg, ms) {
+    var t = $('toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, ms || 4500);
+  }
+  function fmtDate(ms) {
+    if (!ms) return '';
+    try { return new Date(ms).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }); } catch (e) { return ''; }
+  }
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = src; s.onload = res; s.onerror = function () { rej(new Error('load failed: ' + src)); };
+      document.head.append(s);
+    });
+  }
+
+  // ---------- settings (kept beside the data) ----------
+  var META_KEY = 'nihongo-techo:meta', metaMem = {};
+  function getMeta() {
+    try { return Object.assign({}, metaMem, JSON.parse(localStorage.getItem(META_KEY) || '{}')); } catch (e) { return Object.assign({}, metaMem); }
+  }
+  function setMeta(p) {
+    metaMem = Object.assign(metaMem, p);
+    try { localStorage.setItem(META_KEY, JSON.stringify(Object.assign(getMeta(), p))); } catch (e) {}
+  }
+
+  // ---------- Gemini 辨識（選用）：把整張照片直接交給 Gemini 讀，不用本機的前處理／表格偵測 ----------
+  // 好處：不怕頁面彎曲、彩色墨水、虛線、對角分割的表頭；壞處：圖片會送到 Google，需要使用者自己的 API Key。
+  var GEMINI_DEFAULT_MODEL = 'gemini-3.8-flash';
+  var GEMINI_PROMPT = [
+    '你是精確的 OCR 與版面還原工具，請閱讀這張跟日文學習有關的照片（課本、筆記或手寫），把看得到的文字內容整理成純文字輸出：',
+    '1. 保留原本的段落、換行與閱讀順序（由上到下、由左到右）。',
+    '2. 如果照片中有表格（不論是實線、虛線、只有橫線、還是用底色分隔儲存格），請用 GitHub Markdown 表格語法還原，例如：\n| 欄位一 | 欄位二 |\n| --- | --- |\n| 內容 | 內容 |\n欄數與列數以實際內容為準，儲存格文字保持原文，不要翻譯、不要加羅馬拼音。',
+    '3. 漢字如果上方有小字假名注音，可以用括號附在漢字後面，例如「動詞（どうし）」；不確定的話就省略，不要自己編。',
+    '4. 忽略背景透出的另一頁文字、頁碼、裝飾線條、手指或反光等雜訊。',
+    '5. 只輸出辨識到的內容本身，不要加「以下是辨識結果」之類的說明或開場白，也不要用程式碼區塊把整段包起來。'
+  ].join('\n');
+  function b64OfFile(file) {
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { res(String(fr.result).split(',')[1] || ''); };
+      fr.onerror = function () { rej(new Error('read failed')); };
+      fr.readAsDataURL(file);
+    });
+  }
+  // 手機拍的原圖常常是好幾 MB，直接轉 base64 送出去在行動網路下光是「上傳」就要等很久（Gemini 也不需要那麼高的解析度）。
+  // 這裡先用 canvas 縮小長邊、轉成品質適中的 JPEG，通常能把檔案縮到幾百 KB，明顯縮短等待時間。
+  var GEMINI_MAX_EDGE = 1800;
+  function resizeForGemini(file) {
+    return new Promise(function (res) {
+      var img = new Image(), url;
+      try { url = URL.createObjectURL(file); } catch (e) { res(null); return; }
+      var done = false;
+      function finish(v) { if (done) return; done = true; try { URL.revokeObjectURL(url); } catch (e) {} res(v); }
+      img.onload = function () {
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        if (!w || !h) { finish(null); return; }
+        var scale = Math.min(1, GEMINI_MAX_EDGE / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+        var cv = document.createElement('canvas');
+        cv.width = cw; cv.height = ch;
+        var ctx = cv.getContext('2d');
+        if (!ctx) { finish(null); return; }
+        ctx.drawImage(img, 0, 0, cw, ch);
+        if (!cv.toBlob) { finish(null); return; }
+        cv.toBlob(function (blob) {
+          if (!blob) { finish(null); return; }
+          var fr = new FileReader();
+          fr.onload = function () { finish({ b64: String(fr.result).split(',')[1] || '', mime: 'image/jpeg' }); };
+          fr.onerror = function () { finish(null); };
+          fr.readAsDataURL(blob);
+        }, 'image/jpeg', 0.82);
+      };
+      img.onerror = function () { finish(null); };
+      img.src = url;
+    });
+  }
+  // Gemini 的回傳格式這幾年換過好幾次，這裡盡量從常見的幾種形狀裡找出文字，找不到才用遞迴掃描保底。
+  function geminiText(j) {
+    if (!j) return '';
+    if (typeof j.output_text === 'string' && j.output_text) return j.output_text;
+    var parts = [], i;
+    if (Array.isArray(j.candidates)) {
+      for (i = 0; i < j.candidates.length; i++) {
+        var c = j.candidates[i], ps = (c.content && c.content.parts) || [];
+        ps.forEach(function (p) { if (p && typeof p.text === 'string') parts.push(p.text); });
+      }
+      if (parts.length) return parts.join('');
+    }
+    if (Array.isArray(j.output)) {
+      j.output.forEach(function (o) {
+        if (typeof o.text === 'string') parts.push(o.text);
+        (o.content || []).forEach(function (c) { if (c && typeof c.text === 'string') parts.push(c.text); });
+      });
+      if (parts.length) return parts.join('');
+    }
+    var found = '';
+    (function walk(o, depth) {
+      if (found || depth > 6 || !o || typeof o !== 'object') return;
+      if (typeof o.text === 'string' && o.text.length > found.length) found = o.text;
+      Object.keys(o).forEach(function (k) { if (!found) walk(o[k], depth + 1); });
+    })(j, 0);
+    return found;
+  }
+  async function geminiErr(r) {
+    var t = '';
+    try { t = await r.text(); } catch (e) {}
+    var msg = 'Gemini API 錯誤（' + r.status + '）';
+    if (r.status === 400 || r.status === 403) msg = 'Gemini API Key 好像不對，或這個 Key 沒有權限，請到設定重新貼一次。';
+    else if (r.status === 429) msg = 'Gemini 這一分鐘的免費額度用完了，請等一下再試一次。';
+    else if (r.status === 503) msg = 'Google 的這個模型現在人太多，已經自動重試幾次還是忙碌中。可以晚一點再試，或到設定把模型名稱換成別的（例如 gemini-2.5-flash）。';
+    else if (t) msg += '：' + t.slice(0, 160);
+    var e2 = new Error(msg); e2.status = r.status; throw e2;
+  }
+  // 手機網路（尤其行動網路）偶爾會整個卡住、連線既不成功也不失敗，fetch 就會一直吊在那邊不回應。
+  // 沒有逾時保護的話，畫面會停在「傳送到 Gemini 辨識中…」永遠不會跳出結果或錯誤。這裡自己包一層逾時，
+  // 時間到了強制當作失敗處理（並嘗試 abort 底層連線），讓使用者至少看得到明確的錯誤訊息、知道可以重試。
+  var GEMINI_TIMEOUT_MS = 25000;
+  function fetchWithTimeout(url, opt, ms) {
+    return new Promise(function (resolve, reject) {
+      var ctrl = null, done = false;
+      try { ctrl = new AbortController(); } catch (e) {}
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        if (ctrl) { try { ctrl.abort(); } catch (e) {} }
+        var te = new Error('連線逾時：等了 ' + Math.round(ms / 1000) + ' 秒 Google 都沒有回應，可能是網路不穩定或訊號太弱，請檢查網路後再試一次。');
+        te.isTimeout = true; reject(te);
+      }, ms);
+      var o = {}, k;
+      for (k in opt) o[k] = opt[k];
+      if (ctrl) o.signal = ctrl.signal;
+      fetch(url, o).then(function (r) {
+        if (done) return;
+        done = true; clearTimeout(timer); resolve(r);
+      }, function (e) {
+        if (done) return;
+        done = true; clearTimeout(timer); reject(e);
+      });
+    });
+  }
+  // 每隔幾秒補一句「已等待 N 秒」，避免使用者在長時間空等時，看畫面一直沒變化以為是當掉了。
+  function withTicker(p, say, label) {
+    if (!say) return p;
+    var start = Date.now(), stopped = false;
+    var iv = setInterval(function () {
+      if (stopped) return;
+      var sec = Math.round((Date.now() - start) / 1000);
+      if (sec >= 6) say(label + '（已等待 ' + sec + ' 秒…）');
+    }, 6000);
+    function stop() { stopped = true; clearInterval(iv); }
+    p.then(stop, stop);
+    return p;
+  }
+  // 熱門模型常常會短暫「太多人用」（503），這種是暫時的，多等幾秒重試通常就過了，不用直接當成失敗；
+  // 逾時（isTimeout）也一併重試幾次，因為手機網路訊號不穩時，換一次連線常常就通了。
+  async function retry503(fn, say) {
+    var delays = [0, 1500, 3500], i, r, lastErr;
+    for (i = 0; i < delays.length; i++) {
+      if (delays[i]) {
+        if (say) say(lastErr && lastErr.isTimeout
+          ? '剛才那次連線逾時，可能是網路不穩定，' + Math.round(delays[i] / 1000) + ' 秒後自動重試…'
+          : 'Google 這個模型現在比較忙，' + Math.round(delays[i] / 1000) + ' 秒後自動重試…');
+        await sleep(delays[i]);
+      }
+      try { r = await fn(); lastErr = null; }
+      catch (e) {
+        lastErr = e;
+        if (e && e.isTimeout && i < delays.length - 1) continue;
+        throw e;
+      }
+      if (r.status !== 503) return r;
+    }
+    return r;
+  }
+  async function geminiCall(apiKey, model, mime, b64, say) {
+    var headers = { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
+    var body1 = JSON.stringify({ model: model, input: [
+      { type: 'text', text: GEMINI_PROMPT },
+      { type: 'image', data: b64, mime_type: mime }
+    ] });
+    var r = await withTicker(retry503(function () {
+      return fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/interactions', { method: 'POST', headers: headers, body: body1 }, GEMINI_TIMEOUT_MS);
+    }, say), say, '傳送到 Gemini 辨識中…');
+    if (r.ok) {
+      var t = geminiText(await r.json());
+      if (t) return t;
+    } else if (r.status !== 404) {
+      await geminiErr(r);
+    }
+    // 新版 interactions 端點不存在（404）或沒讀到內容時，退回舊版 generateContent 格式再試一次。
+    var body2 = JSON.stringify({ contents: [{ parts: [
+      { text: GEMINI_PROMPT },
+      { inline_data: { mime_type: mime, data: b64 } }
+    ] }] });
+    var r2 = await withTicker(retry503(function () {
+      return fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', { method: 'POST', headers: headers, body: body2 }, GEMINI_TIMEOUT_MS);
+    }, say), say, '傳送到 Gemini 辨識中…');
+    if (!r2.ok) await geminiErr(r2);
+    var t2 = geminiText(await r2.json());
+    if (!t2) throw new Error('Gemini 沒有回傳可用的內容，請換一張照片再試。');
+    return t2;
+  }
+  async function geminiScan(file, apiKey, model, say) {
+    if (say) say('整理照片中…');
+    var packed = null;
+    try { packed = await resizeForGemini(file); } catch (e) {}
+    var b64, mime;
+    if (packed && packed.b64) { b64 = packed.b64; mime = packed.mime; }
+    else { b64 = await b64OfFile(file); mime = file.type || 'image/jpeg'; }
+    if (say) say('傳送到 Gemini 辨識中…');
+    var text = String(await geminiCall(apiKey, model, mime, b64, say)).trim();
+    var blocks = parseBlocks(text), nTables = 0, first = '';
+    blocks.forEach(function (b) {
+      if (b.type === 'table') { nTables++; return; }
+      if (first) return;
+      for (var i = 0; i < b.lines.length; i++) { if (b.lines[i].trim()) { first = b.lines[i].trim(); break; } }
+    });
+    return { title: first.replace(/^[#*\-•・【\[「『\s]+/, '').slice(0, 30), text: text, conf: null, tables: nTables };
+  }
+
+  // ---------- storage: localStorage on this phone ----------
+  function makeLocalStore() {
+    var KEY = 'nihongo-techo:v1';
+    var data = { words: [], grammar: [] }, subs = {}, timer = null, seq = 0;
+    var persistent = true;
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        try {
+          var d = JSON.parse(raw);
+          data.words = Array.isArray(d.words) ? d.words : [];
+          data.grammar = Array.isArray(d.grammar) ? d.grammar : [];
+        } catch (pe) { try { localStorage.setItem(KEY + ':corrupt', raw); } catch (e2) {} }
+      }
+      localStorage.setItem(KEY + ':probe', '1'); localStorage.removeItem(KEY + ':probe');
+    } catch (e) { persistent = false; }
+    function saveNow() {
+      clearTimeout(timer);
+      try { localStorage.setItem(KEY, JSON.stringify(data)); }
+      catch (e) { if (persistent) { persistent = false; updateNotice(); toast('無法儲存到這個瀏覽器，請立刻按「備份」匯出資料。', 7000); } }
+    }
+    function save() { clearTimeout(timer); timer = setTimeout(saveNow, 150); }
+    window.addEventListener('pagehide', saveNow);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveNow(); });
+    function emit(col) {
+      var s = subs[col]; if (!s) return;
+      var rows = data[col].slice().sort(function (a, b) { return (b[s.order] || 0) - (a[s.order] || 0); });
+      s.cb(rows.map(function (r) { return Object.assign({}, r); }));
+    }
+    return {
+      isPersistent: function () { return persistent; },
+      watch: function (col, order, cb) { subs[col] = { order: order, cb: cb }; setTimeout(function () { emit(col); }, 0); },
+      newId: function (col) { return col.charAt(0) + Date.now().toString(36) + (++seq).toString(36) + Math.random().toString(36).slice(2, 5); },
+      create: function (col, id, d) { data[col].push(Object.assign({ id: id }, d)); emit(col); save(); return Promise.resolve(); },
+      patch: function (col, id, d) {
+        var r = data[col].find(function (x) { return x.id === id; });
+        if (!r) return Promise.reject({ code: 'missing' });
+        Object.assign(r, d); emit(col); save(); return Promise.resolve();
+      },
+      remove: function (col, id) { data[col] = data[col].filter(function (x) { return x.id !== id; }); emit(col); save(); return Promise.resolve(); },
+      dump: function () { return { words: data.words, grammar: data.grammar }; },
+      merge: function (inc) {
+        var n = { words: 0, grammar: 0 };
+        ['words', 'grammar'].forEach(function (col) {
+          (Array.isArray(inc[col]) ? inc[col] : []).forEach(function (it) {
+            if (!it || typeof it !== 'object' || typeof it.id !== 'string' || !it.id) return;
+            var clean = {};
+            Object.keys(it).forEach(function (k) { var v = it[k]; if (typeof v === 'string' || (typeof v === 'number' && isFinite(v))) clean[k] = v; });
+            var i = data[col].findIndex(function (x) { return x.id === it.id; });
+            if (i >= 0) data[col][i] = clean; else data[col].push(clean);
+            n[col]++;
+          });
+          emit(col);
+        });
+        save();
+        return n;
+      }
+    };
+  }
+  var store = makeLocalStore();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+  // ---------- 雲端同步（選用，2026-10-09 新增）----------
+  // 預設資料只留在這支手機的 localStorage。這裡額外提供「選用」的雲端同步：
+  // 使用者自己到 Firebase（Google 的免費服務）申請一個專案、開 Email／密碼登入跟 Firestore 資料庫，
+  // 把專案設定貼進這個 App（跟之前貼 Gemini API Key 一樣的模式）。整個 App 仍然只是一個 HTML 檔，
+  // 不需要我們自己架設或維護伺服器；每個 Email 帳號各自看到自己的資料，彼此看不到對方的內容，
+  // 可以同一個人在多台裝置間同步，也可以很多人各自用自己的帳號分開使用。
+  var CLOUD_SDK = {
+    app: 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js',
+    auth: 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',
+    fs: 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js'
+  };
+  var CLOUD_COLS = ['words', 'grammar'];
+  function cloudAuthErr(e) {
+    var code = e && e.code || '';
+    if (code === 'auth/email-already-in-use') return '這個 Email 已經註冊過了，請改用「登入」。';
+    if (code === 'auth/invalid-email') return 'Email 格式不對，請檢查一下。';
+    if (code === 'auth/weak-password') return '密碼至少要 6 個字元。';
+    if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') return 'Email 或密碼不對，請再確認一次。';
+    if (code === 'auth/user-not-found') return '找不到這個帳號，請確認 Email，或改用「註冊」建立新帳號。';
+    if (code === 'auth/too-many-requests') return '嘗試太多次了，請稍等一下再試。';
+    if (code === 'auth/network-request-failed') return '連不上網路，請檢查網路連線後再試一次。';
+    return '發生錯誤：' + (e && (e.message || code) || e);
+  }
+  function makeCloudSync(store) {
+    var fbAuth = null, db = null, unsub = {}, uid = null, email = null;
+    var applyingRemote = false, syncing = false, stateCbs = [];
+    function state() {
+      return { configured: !!getMeta().cloudConfig, ready: !!fbAuth, signedIn: !!uid, uid: uid, email: email, syncing: syncing };
+    }
+    function emit() { stateCbs.forEach(function (cb) { try { cb(state()); } catch (e) {} }); }
+    function onState(cb) { stateCbs.push(cb); cb(state()); return function () { stateCbs = stateCbs.filter(function (x) { return x !== cb; }); }; }
+
+    // 使用者從 Firebase 主控台複製的是一段 JS 物件字面值（const firebaseConfig = { apiKey: "...", ... }），
+    // 這裡寬鬆解析成真正的物件；這組設定本身是公開可嵌進前端程式碼的（Firebase 官方文件也是這樣用），
+    // 真正的存取保護來自 Firestore 的安全規則，不是靠藏起這段設定值。
+    function parseConfig(text) {
+      var s = String(text || '').trim();
+      var m = s.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error('看起來不是完整的設定內容，請整段複製 Firebase 給你的設定（firebaseConfig｛…｝）再貼上。');
+      var obj;
+      try { obj = new Function('return (' + m[0] + ')')(); } catch (e) { throw new Error('設定內容格式不對，請確認是直接從 Firebase 主控台複製的那一段。'); }
+      if (!obj || typeof obj !== 'object' || !obj.apiKey || !obj.projectId) throw new Error('設定內容缺少 apiKey 或 projectId，請確認整段都複製到了。');
+      return obj;
+    }
+    async function ensureSdk() {
+      if (!(window.firebase && window.firebase.apps)) await loadScript(CLOUD_SDK.app);
+      if (!(window.firebase && window.firebase.auth)) await loadScript(CLOUD_SDK.auth);
+      if (!(window.firebase && window.firebase.firestore)) await loadScript(CLOUD_SDK.fs);
+    }
+    function stopSync() {
+      Object.keys(unsub).forEach(function (k) { try { unsub[k](); } catch (e) {} });
+      unsub = {};
+    }
+    // 訂閱雲端這個帳號底下的單字／文法，任何其他裝置（或剛剛是自己寫入後雲端回傳確認）的變動都會進到這裡；
+    // applyingRemote 這段時間裡，store.create/patch/remove 的包裝不會把資料「寫回」雲端，避免自己回音造成無限迴圈。
+    function startSync(theUid) {
+      stopSync();
+      CLOUD_COLS.forEach(function (col) {
+        unsub[col] = db.collection('users').doc(theUid).collection(col).onSnapshot(function (snap) {
+          applyingRemote = true;
+          try {
+            snap.docChanges().forEach(function (ch) {
+              var id = ch.doc.id;
+              if (ch.type === 'removed') { store.remove(col, id); return; }
+              var d = Object.assign({}, ch.doc.data(), { id: id });
+              var exists = store.dump()[col].some(function (x) { return x.id === id; });
+              if (exists) store.patch(col, id, d); else store.create(col, id, d);
+            });
+          } finally { applyingRemote = false; }
+        }, function (e) { toast('雲端同步讀取失敗：' + cloudAuthErr(e), 6000); });
+      });
+    }
+    function cloudWrite(col, id, full) {
+      if (!uid || !db || applyingRemote) return;
+      db.collection('users').doc(uid).collection(col).doc(id).set(full, { merge: true })
+        .catch(function (e) { toast('雲端同步寫入失敗：' + cloudAuthErr(e), 6000); });
+    }
+    function cloudDelete(col, id) {
+      if (!uid || !db || applyingRemote) return;
+      db.collection('users').doc(uid).collection(col).doc(id).delete().catch(function () {});
+    }
+    // 把本機 store 的三個寫入方法包一層：本機新增／修改／刪除時，如果目前有登入，就一併把同一筆資料鏡射到雲端；
+    // 沒有登入、或正在套用從雲端來的變動時，cloudWrite/cloudDelete 會直接跳過，不會真的送出網路請求。
+    var _create = store.create, _patch = store.patch, _remove = store.remove, _dump = store.dump;
+    store.create = function (col, id, d) {
+      var full = Object.assign({ id: id }, d);
+      cloudWrite(col, id, full);
+      return _create(col, id, d);
+    };
+    store.patch = function (col, id, d) {
+      var r = _dump()[col].find(function (x) { return x.id === id; });
+      if (r) cloudWrite(col, id, Object.assign({}, r, d));
+      return _patch(col, id, d);
+    };
+    store.remove = function (col, id) {
+      cloudDelete(col, id);
+      return _remove(col, id);
+    };
+    // 第一次連上一個帳號時，把這台裝置本機已有、雲端還沒有的資料補一份上雲端——雙向合併，不會互相覆蓋掉對方；
+    // 雲端原本就有的資料，則交給 startSync() 的初次訂閱自動拉下來，不在這裡重複處理。
+    async function firstMerge(theUid) {
+      var local = _dump();
+      for (var i = 0; i < CLOUD_COLS.length; i++) {
+        var col = CLOUD_COLS[i];
+        var snap = await db.collection('users').doc(theUid).collection(col).get();
+        var cloudIds = {};
+        snap.forEach(function (doc) { cloudIds[doc.id] = true; });
+        for (var j = 0; j < local[col].length; j++) {
+          var it = local[col][j];
+          if (!cloudIds[it.id]) await db.collection('users').doc(theUid).collection(col).doc(it.id).set(it);
+        }
+      }
+    }
+    async function init() {
+      var cfg = getMeta().cloudConfig;
+      if (!cfg) return;
+      try {
+        await ensureSdk();
+        var app = window.firebase.apps.length ? window.firebase.apps[0] : window.firebase.initializeApp(cfg);
+        fbAuth = window.firebase.auth(app);
+        db = window.firebase.firestore(app);
+        emit();
+        fbAuth.onAuthStateChanged(function (u) {
+          uid = u ? u.uid : null;
+          email = u ? u.email : null;
+          if (u) startSync(u.uid); else stopSync();
+          emit();
+        });
+      } catch (e) { toast('雲端同步連線失敗：' + cloudAuthErr(e), 6000); emit(); }
+    }
+    async function setConfig(text) {
+      var cfg = parseConfig(text);
+      setMeta({ cloudConfig: cfg });
+      await init();
+    }
+    function clearConfig() {
+      stopSync();
+      if (fbAuth) { try { fbAuth.signOut(); } catch (e) {} }
+      fbAuth = null; db = null; uid = null; email = null;
+      setMeta({ cloudConfig: null });
+      emit();
+    }
+    async function signUp(mail, pw) {
+      await ensureSdk();
+      var cred = await fbAuth.createUserWithEmailAndPassword(mail, pw);
+      uid = cred.user.uid; email = cred.user.email; syncing = true; emit();
+      await firstMerge(uid);
+      syncing = false; emit();
+      return cred;
+    }
+    async function signIn(mail, pw) {
+      await ensureSdk();
+      var cred = await fbAuth.signInWithEmailAndPassword(mail, pw);
+      uid = cred.user.uid; email = cred.user.email; syncing = true; emit();
+      await firstMerge(uid);
+      syncing = false; emit();
+      return cred;
+    }
+    function signOut() { stopSync(); return fbAuth ? fbAuth.signOut() : Promise.resolve(); }
+
+    init();
+    return { onState: onState, state: state, setConfig: setConfig, clearConfig: clearConfig, signUp: signUp, signIn: signIn, signOut: signOut };
+  }
+  var cloud = makeCloudSync(store);
+
+  // ---------- notice banner ----------
+  var noticeAction = null;
+  function showNotice(text, label, fn) {
+    $('notice').hidden = false; $('noticeTxt').textContent = text;
+    var b = $('noticeBtn'); b.hidden = !label; b.textContent = label || ''; noticeAction = fn || null;
+  }
+  function updateNotice() {
+    if (!store.isPersistent()) {
+      showNotice('這個瀏覽器無法保存資料，關閉頁面後內容會消失。請改用 Chrome 直接開啟檔案，或隨時按「備份」匯出。');
+      return;
+    }
+    var n = S.words.length + S.grammar.length, last = getMeta().lastBackup || 0;
+    if (n >= 15 && Date.now() - last > 14 * 864e5) {
+      showNotice('已經存了 ' + n + ' 筆資料，建議備份一份，換手機或清除瀏覽器資料時才不會遺失。', '備份', openMenu);
+    } else $('notice').hidden = true;
+  }
+
+  // ---------- translation: Google Translate free endpoint ----------
+  var POS_ZH = { verb: '動詞', noun: '名詞', adjective: '形容詞', adverb: '副詞', pronoun: '代名詞', preposition: '介系詞', conjunction: '連接詞', interjection: '感嘆詞', particle: '助詞', suffix: '接尾詞', prefix: '接頭詞', numeral: '數詞', counter: '量詞', expression: '慣用語' };
+  async function gtx(sl, tl, q) {
+    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, 12000);
+    try {
+      var r = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sl + '&tl=' + tl + '&dt=t&dt=bd&q=' + encodeURIComponent(q), { signal: ctl.signal });
+      if (!r.ok) throw { code: 'http', status: r.status };
+      var d = await r.json();
+      var text = (Array.isArray(d[0]) ? d[0] : []).map(function (s) { return s && typeof s[0] === 'string' ? s[0] : ''; }).join('').trim();
+      var pos = '', alts = [];
+      try {
+        if (Array.isArray(d[1])) d[1].forEach(function (e, i) {
+          if (i === 0 && typeof e[0] === 'string') pos = POS_ZH[e[0].toLowerCase()] || e[0];
+          if (i === 0 && Array.isArray(e[1])) alts = e[1].filter(function (x) { return typeof x === 'string'; });
+        });
+      } catch (e2) {}
+      return { text: text, pos: pos, alts: alts };
+    } finally { clearTimeout(timer); }
+  }
+  var HAS_JA = /[぀-ヿ㐀-鿿]/;
+  var KANA_ONLY = /^[぀-ヿー・\s]+$/;
+
+  var kuroP = null, kuro = null, kuroFail = false;
+  async function getKuro() {
+    if (kuro) return kuro;
+    if (kuroFail) return null;
+    if (!kuroP) {
+      toast('第一次使用會下載讀音字典（約 12MB），請稍候…', 6000);
+      kuroP = (async function () {
+        await loadScript(CDN.kuroshiro); await loadScript(CDN.analyzer);
+        var K = window.Kuroshiro && (window.Kuroshiro.default || window.Kuroshiro);
+        var A = window.KuromojiAnalyzer && (window.KuromojiAnalyzer.default || window.KuromojiAnalyzer);
+        var k = new K(); await k.init(new A({ dictPath: CDN.dict }));
+        return k;
+      })().then(function (k) { kuro = k; return k; }, function () {
+        kuroFail = true; toast('讀音字典載入失敗，讀音欄位可以手動填寫。', 6000); return null;
+      });
+    }
+    return kuroP;
+  }
+  async function readingOf(word) {
+    if (getMeta().autoReading === false) return '';
+    if (!HAS_JA.test(word) || KANA_ONLY.test(word) || word.length > 14) return '';
+    var k = await getKuro(); if (!k) return '';
+    try { var r = await k.convert(word, { to: 'hiragana' }); return r && r !== word ? r : ''; } catch (e) { return ''; }
+  }
+  async function lookup(input) {
+    var word = input, note = '';
+    if (!HAS_JA.test(input)) {           // English (or other) input -> find the Japanese word first
+      var j = await gtx('auto', 'ja', input);
+      if (!j.text) throw { code: 'empty' };
+      word = j.text; note = '輸入：' + input;
+    }
+    var t = await gtx('ja', 'zh-TW', word);
+    if (!t.text) throw { code: 'empty' };
+    var seen = {}, parts = [t.text].concat(t.alts).filter(function (x) { x = x.trim(); if (!x || seen[x]) return false; seen[x] = 1; return true; });
+    var patch = { meaning: parts.slice(0, 4).join('；'), pos: t.pos };
+    if (word !== input) patch.word = word;
+    if (note) patch.note = note;
+    patch.reading = await readingOf(word);
+    return patch;
+  }
+
+  async function translateItems(items) {
+    var out = {}, fails = 0, net = 0;
+    items.forEach(function (i) { S.busy.add(i.id); });
+    renderWords();
+    for (var n = 0; n < items.length; n++) {
+      var it = items[n];
+      try {
+        var p = await lookup(it.word);
+        await store.patch('words', it.id, p);
+        out[it.id] = p;
+      } catch (e) {
+        fails++; if (!e || e.code !== 'empty') net++;
+      }
+      S.busy.delete(it.id); renderWords();
+      if (n < items.length - 1) await sleep(200);
+    }
+    if (fails) toast(net ? '翻譯服務連不上（可能沒網路，或被暫時限制）。單字已保留，可以稍後按「重新翻譯」。' : fails + ' 個單字沒有取得翻譯，可以手動填寫。', 6000);
+    return out;
+  }
+
+  async function addWords() {
+    var ta = $('wordsIn');
+    var lines = ta.value.split(/\n|、/).map(function (s) { return s.trim(); }).filter(Boolean);
+    lines = lines.filter(function (x, i) { return lines.indexOf(x) === i; });
+    if (!lines.length) { ta.focus(); return; }
+    var have = new Set(S.words.map(function (w) { return w.word; }));
+    var fresh = lines.filter(function (x) { return !have.has(x); });
+    var dup = lines.length - fresh.length;
+    if (!fresh.length) { toast('這些單字已經在單字本裡了。'); return; }
+    var rest = [];
+    if (fresh.length > 20) { rest = fresh.slice(20); fresh = fresh.slice(0, 20); }
+    ta.value = rest.join('\n'); grow(ta, 220);
+    var now = Date.now(), items = [];
+    await Promise.all(fresh.map(function (w, i) {
+      var id = store.newId('words');
+      items.push({ id: id, word: w });
+      return store.create('words', id, { word: w, reading: '', meaning: '', pos: '', example: '', exampleZh: '', note: '', createdAt: now + (fresh.length - i) });
+    }));
+    if (dup) toast(dup + ' 個已存在的單字已略過。');
+    if (rest.length) toast('一次最多 20 個，剩下的還留在輸入框。');
+    translateItems(items);
+  }
+
+  // ---------- OCR engine: Tesseract.js in the browser + layout / table reconstruction ----------
+  var CJK = '\\u3000-\\u303f\\u3040-\\u30ff\\u3400-\\u9fff\\uff00-\\uffef';
+  var RE_CJK = new RegExp('[' + CJK + ']');
+  var CJK_GAP = new RegExp('([' + CJK + '])[ \\t]+(?=[' + CJK + '])', 'g');
+  var RE_COMMA = new RegExp('([' + CJK + ']),(?=[' + CJK + ']|\\s*$)', 'g');
+  var RE_PERIOD = new RegExp('([' + CJK + '])\\.(?=[' + CJK + ']|\\s|$)', 'g');
+  var RE_CHOON = /([ァ-ヺ])[一−–—\-](?=[ァ-ヺー]|\s|$|[、。,.)）」』])/g;
+  var RE_JUNK = /^[\s|_\-=~`'"‘’“”.,:;!¦｜‖·•]*$/;
+
+  function fixLine(t) {
+    t = String(t == null ? '' : t).replace(/\r/g, '').replace(/^[ \t]*[|｜¦]+[ \t]*/, '');
+    t = t.replace(CJK_GAP, '$1').replace(/[ \t]{2,}/g, ' ').replace(/[ \t]+$/, '');
+    if (RE_CJK.test(t)) {
+      t = t.replace(RE_COMMA, '$1、').replace(RE_PERIOD, '$1。').replace(/[~～]/g, '〜');
+      t = t.replace(RE_CHOON, '$1ー');
+      t = t.replace(RE_CHOON, '$1ー');
+    }
+    return t.trim();
+  }
+  function isJunk(t, conf) { return !t || RE_JUNK.test(t) || (conf < 50 && t.length <= 3); }
+  function median(a) { if (!a.length) return 0; var s = a.slice().sort(function (p, q) { return p - q; }); return s[s.length >> 1]; }
+
+  // ----- markdown table helpers (shared by scanner, viewer and list preview) -----
+  // 表格儲存格裡不能有真的換行（會把 markdown 那一列切成好幾行、整個表格解析壞掉），所以編輯時如果換行（Shift+Enter
+  // 或貼上多行文字），存檔前先轉成 <br> 標記；檢視時再把 <br> 轉回真正的換行顯示出來，使用者也可以直接在編輯模式的
+  // 原始文字裡手動打 <br> 達到同樣效果。
+  var RE_CELL_BR = /<br\s*\/?\s*>/gi;
+  function cellClean(s) { return String(s == null ? '' : s).replace(/\r\n?|\n/g, '<br>').replace(/\|/g, '｜').trim(); }
+  function tableToMd(rows, header) {
+    var C = 0; rows.forEach(function (r) { if (r.length > C) C = r.length; });
+    var lines = rows.map(function (r) {
+      var cs = []; for (var i = 0; i < C; i++) cs.push(cellClean(r[i]));
+      return '| ' + cs.join(' | ') + ' |';
+    });
+    if (header !== false && lines.length) {
+      var sep = []; for (var j = 0; j < C; j++) sep.push('---');
+      lines.splice(1, 0, '| ' + sep.join(' | ') + ' |');
+    }
+    return lines.join('\n');
+  }
+  var RE_TROW = /^\s*\|.*\|\s*$/;
+  function parseBlocks(body) {
+    var lines = String(body || '').split('\n'), blocks = [], txt = null, tb = null;
+    function flushT() { if (txt) { blocks.push(txt); txt = null; } }
+    function flushTb() { if (tb) { if (tb.rows.length) blocks.push(tb); tb = null; } }
+    lines.forEach(function (ln) {
+      if (RE_TROW.test(ln) && ln.trim().length > 2) {
+        flushT();
+        if (!tb) tb = { type: 'table', rows: [], header: false };
+        var cells = ln.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function (s) { return s.trim().replace(RE_CELL_BR, '\n'); });
+        if (tb.rows.length === 1 && cells.every(function (c) { return /^:?-{2,}:?$/.test(c); })) { tb.header = true; return; }
+        tb.rows.push(cells);
+      } else {
+        flushTb();
+        if (!txt) txt = { type: 'text', lines: [] };
+        txt.lines.push(ln);
+      }
+    });
+    flushT(); flushTb();
+    blocks.forEach(function (b) {
+      if (b.type !== 'table') return;
+      var C = 0; b.rows.forEach(function (r) { if (r.length > C) C = r.length; });
+      b.rows.forEach(function (r) { while (r.length < C) r.push(''); });
+    });
+    return blocks;
+  }
+  function blocksToBody(blocks) {
+    return blocks.map(function (b) { return b.type === 'text' ? b.lines.join('\n') : tableToMd(b.rows, b.header); }).join('\n');
+  }
+  function previewOf(body) {
+    return stripInlineMd(String(body || '').split('\n')
+      .filter(function (l) { return !/^\s*\|[\s:|-]+\|\s*$/.test(l); })
+      .map(function (l) { return RE_TROW.test(l) ? l.trim().replace(/^\||\|$/g, '').split('|').map(function (s) { return s.trim(); }).filter(Boolean).join(' · ') : l; })
+      .join('\n').replace(/\n{2,}/g, '\n').replace(RE_CELL_BR, ' ')).slice(0, 200);
+  }
+  // 目前只支援最基本的「**粗體**」語法——手機鍵盤打兩個星號最方便，先不做斜體、清單等更複雜的 markdown。
+  // renderInlineMd 用來把純文字內容畫成真正的粗體（給不會再被直接編輯的地方用，例如段落、清單預覽）；
+  // stripInlineMd 用在標題／列表預覽這種純文字標籤，把 ** 拿掉但留下裡面的字，不要讓清單看起來一堆星號。
+  function renderInlineMd(el, text) {
+    el.textContent = '';
+    var s = String(text == null ? '' : text), re = /\*\*(.+?)\*\*/g, last = 0, m;
+    while ((m = re.exec(s))) {
+      if (m.index > last) el.appendChild(document.createTextNode(s.slice(last, m.index)));
+      el.appendChild(h('strong', { text: m[1] }));
+      last = re.lastIndex;
+    }
+    if (last < s.length) el.appendChild(document.createTextNode(s.slice(last)));
+  }
+  function stripInlineMd(s) { return String(s == null ? '' : s).replace(/\*\*(.+?)\*\*/g, '$1'); }
+
+  // ----- image helpers -----
+  function grayOf(canvas) {
+    var W = canvas.width, H = canvas.height;
+    var d = canvas.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+    var g = new Uint8ClampedArray(W * H);
+    for (var i = 0, j = 0; j < g.length; i += 4, j++) g[j] = (d[i] * 77 + d[i + 1] * 150 + d[i + 2] * 29) >> 8;
+    return g;
+  }
+  // mean of a (2r+1)^2 window, edge-clamped (separable running sums)
+  function boxMean(g, W, H, r) {
+    var k = 2 * r + 1, tmp = new Uint16Array(W * H), y, x, s, o, a, b;
+    for (y = 0; y < H; y++) {
+      o = y * W; s = 0;
+      for (x = -r; x <= r; x++) s += g[o + (x < 0 ? 0 : x >= W ? W - 1 : x)];
+      for (x = 0; x < W; x++) {
+        tmp[o + x] = s;
+        a = x + r + 1; b = x - r;
+        s += g[o + (a >= W ? W - 1 : a)] - g[o + (b < 0 ? 0 : b)];
+      }
+    }
+    var out = new Uint8ClampedArray(W * H), col = new Uint32Array(W), div = k * k, yy;
+    for (yy = -r; yy <= r; yy++) { o = (yy < 0 ? 0 : yy >= H ? H - 1 : yy) * W; for (x = 0; x < W; x++) col[x] += tmp[o + x]; }
+    for (y = 0; y < H; y++) {
+      o = y * W;
+      for (x = 0; x < W; x++) out[o + x] = col[x] / div;
+      a = (y + r + 1 >= H ? H - 1 : y + r + 1) * W; b = (y - r < 0 ? 0 : y - r) * W;
+      for (x = 0; x < W; x++) col[x] += tmp[a + x] - tmp[b + x];
+    }
+    return out;
+  }
+  // local-threshold binarisation: 1 = ink. Works on uneven phone-photo lighting.
+  // Faint marks (bleed-through, texture, watermark) are dropped unless they touch clearly dark ink.
+  function binarize(g, W, H) {
+    var r = Math.max(6, Math.min(125, Math.round(W / 28)));
+    var m = boxMean(g, W, H, r), n = g.length, ink = new Uint8Array(n), stack = new Int32Array(n), sp = 0, i, weak = 0, strong = 0, mv, v;
+    for (i = 0; i < n; i++) {
+      mv = m[i]; v = g[i];
+      if (v < mv * 0.9 && mv - v > 12) {
+        weak++;
+        if (v < mv * 0.78 && mv - v > 24) { ink[i] = 2; stack[sp++] = i; strong++; } else ink[i] = 1;
+      }
+    }
+    if (strong < weak * 0.12) { for (i = 0; i < n; i++) if (ink[i]) ink[i] = 1; return ink; }   // everything is faint: keep it all
+    var p, x, q;
+    while (sp > 0) {
+      p = stack[--sp]; x = p % W;
+      if (x > 0) {
+        q = p - 1; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; }
+        if (p >= W) { q = p - W - 1; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; } }
+        if (p + W < n) { q = p + W - 1; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; } }
+      }
+      if (x < W - 1) {
+        q = p + 1; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; }
+        if (p >= W) { q = p - W + 1; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; } }
+        if (p + W < n) { q = p + W + 1; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; } }
+      }
+      if (p >= W) { q = p - W; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; } }
+      if (p + W < n) { q = p + W; if (ink[q] === 1) { ink[q] = 2; stack[sp++] = q; } }
+    }
+    for (i = 0; i < n; i++) ink[i] = ink[i] === 2 ? 1 : 0;
+    return ink;
+  }
+  function paperLevel(g) {
+    var hist = new Uint32Array(256), i, n = 0, step = Math.max(1, Math.floor(g.length / 200000));
+    for (i = 0; i < g.length; i += step) { hist[g[i]]++; n++; }
+    var acc = 0, target = n * 0.85;
+    for (i = 0; i < 256; i++) { acc += hist[i]; if (acc >= target) return i; }
+    return 255;
+  }
+  function stretchGray(g) {
+    var hist = new Uint32Array(256), i, n = g.length, acc = 0, lo = 0, hi = 255;
+    for (i = 0; i < n; i++) hist[g[i]]++;
+    for (i = 0; i < 256; i++) { acc += hist[i]; if (acc >= n * 0.02) { lo = i; break; } }
+    acc = 0;
+    for (i = 255; i >= 0; i--) { acc += hist[i]; if (acc >= n * 0.02) { hi = i; break; } }
+    var span = Math.max(30, hi - lo), out = new Uint8ClampedArray(n);
+    for (i = 0; i < n; i++) out[i] = (g[i] - lo) * 255 / span;
+    return out;
+  }
+  function canvasFromBuf(buf, W, H, isInk) {
+    var c = document.createElement('canvas'); c.width = W; c.height = H;
+    var x = c.getContext('2d'), img = x.createImageData(W, H), d = img.data;
+    for (var i = 0, j = 0; j < buf.length; j++, i += 4) { var v = isInk ? (buf[j] ? 0 : 255) : buf[j]; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+    x.putImageData(img, 0, 0);
+    return c;
+  }
+  function rotated(canvas, deg, fill) {
+    var a = deg * Math.PI / 180, W = canvas.width, H = canvas.height, cs = Math.abs(Math.cos(a)), sn = Math.abs(Math.sin(a));
+    var W2 = Math.ceil(W * cs + H * sn), H2 = Math.ceil(W * sn + H * cs);
+    var c = document.createElement('canvas'); c.width = W2; c.height = H2;
+    var x = c.getContext('2d', { willReadFrequently: true });
+    x.fillStyle = fill; x.fillRect(0, 0, W2, H2);
+    x.imageSmoothingQuality = 'high';
+    x.translate(W2 / 2, H2 / 2); x.rotate(a); x.drawImage(canvas, -W / 2, -H / 2);
+    return c;
+  }
+  async function loadPage(file) {
+    var bmp;
+    try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { bmp = await createImageBitmap(file); }
+    var m = Math.max(bmp.width, bmp.height), sc = m > 2400 ? 2400 / m : (m < 1500 ? 1800 / m : 1);
+    var c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * sc)); c.height = Math.max(1, Math.round(bmp.height * sc));
+    var x = c.getContext('2d', { willReadFrequently: true });
+    x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+    x.imageSmoothingQuality = 'high'; x.drawImage(bmp, 0, 0, c.width, c.height);
+    if (bmp.close) bmp.close();
+    return c;
+  }
+  // skew in degrees (positive = text runs downward to the right)
+  function estimateSkew(canvas) {
+    var s = Math.min(1, 900 / canvas.width), w = Math.max(50, Math.round(canvas.width * s)), h = Math.max(50, Math.round(canvas.height * s));
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d', { willReadFrequently: true }).drawImage(canvas, 0, 0, w, h);
+    var ink = binarize(grayOf(c), w, h), n = 0, i, x, y;
+    for (i = 0; i < ink.length; i++) n += ink[i];
+    if (n < 300) return 0;
+    var stride = Math.max(1, Math.ceil(n / 50000)), xs = [], ys = [], k = 0;
+    var mx = Math.round(w * 0.04), my = Math.round(h * 0.04);   // ignore photo borders / desk edges
+    for (y = my; y < h - my; y++) for (x = mx; x < w - mx; x++) if (ink[y * w + x] && (k++ % stride === 0)) { xs.push(x); ys.push(y); }
+    var off = Math.ceil(w * 0.3), bins = new Float64Array(h + 2 * off + 4);
+    function score(deg) {
+      var a = deg * Math.PI / 180, cs = Math.cos(a), sn = Math.sin(a), t = 0, j, q;
+      bins.fill(0);
+      for (j = 0; j < xs.length; j++) bins[Math.round(ys[j] * cs - xs[j] * sn + off)]++;
+      for (q = 0; q < bins.length; q++) t += bins[q] * bins[q];
+      return t;
+    }
+    var base = score(0), best = 0, bs = base, d, sc;
+    for (d = -10; d <= 10; d += 0.5) { sc = score(d); if (sc > bs) { bs = sc; best = d; } }
+    var c0 = best;
+    for (d = c0 - 0.5; d <= c0 + 0.5; d += 0.1) { sc = score(d); if (sc > bs) { bs = sc; best = d; } }
+    return bs > base * 1.02 ? best : 0;
+  }
+
+  // ----- table detection: ruled tables (solid, dotted, shaded or white-gap borders), and tables ruled only by horizontal lines -----
+  function chromaOf(canvas) {
+    var W = canvas.width, H = canvas.height;
+    var d = canvas.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, W, H).data;
+    var u = new Int16Array(W * H);
+    for (var i = 0, j = 0; j < u.length; i += 4, j++) u[j] = d[i] - d[i + 2];
+    return u;
+  }
+  // boundary maps: 1 where a thin line (dark or bright) or a step in brightness/colour crosses the pixel.
+  // boundaryH marks edges that run horizontally (compares above vs below), boundaryV those that run vertically.
+  function isEdge(c, a, b, ua, ub) {
+    var d = a - b;
+    if (d > 22 || d < -22) return 1;
+    if ((c - a > 24 && c - b > 24) || (a - c > 24 && b - c > 24)) return 1;
+    d = ua - ub;
+    return (d > 30 || d < -30) ? 1 : 0;
+  }
+  function boundaryH(Y, U, W, H) {
+    var out = new Uint8Array(W * H), aY = new Int32Array(W), bY = new Int32Array(W), aU = new Int32Array(W), bU = new Int32Array(W), x, y, i, o;
+    function rc(v) { return v < 0 ? 0 : v >= H ? H - 1 : v; }
+    for (i = -7; i <= -3; i++) { o = rc(i) * W; for (x = 0; x < W; x++) { aY[x] += Y[o + x]; aU[x] += U[o + x]; } }
+    for (i = 3; i <= 7; i++) { o = rc(i) * W; for (x = 0; x < W; x++) { bY[x] += Y[o + x]; bU[x] += U[o + x]; } }
+    for (y = 0; y < H; y++) {
+      o = y * W;
+      for (x = 0; x < W; x++) out[o + x] = isEdge(Y[o + x], aY[x] / 5, bY[x] / 5, aU[x] / 5, bU[x] / 5);
+      var o1 = rc(y - 2) * W, o2 = rc(y - 7) * W, o3 = rc(y + 8) * W, o4 = rc(y + 3) * W;
+      for (x = 0; x < W; x++) { aY[x] += Y[o1 + x] - Y[o2 + x]; aU[x] += U[o1 + x] - U[o2 + x]; bY[x] += Y[o3 + x] - Y[o4 + x]; bU[x] += U[o3 + x] - U[o4 + x]; }
+    }
+    return out;
+  }
+  function boundaryV(Y, U, W, H) {
+    var out = new Uint8Array(W * H), x, y, i, o, aY, bY, aU, bU, p1, p2, p3, p4;
+    function cx(v) { return v < 0 ? 0 : v >= W ? W - 1 : v; }
+    for (y = 0; y < H; y++) {
+      o = y * W; aY = bY = aU = bU = 0;
+      for (i = -7; i <= -3; i++) { aY += Y[o + cx(i)]; aU += U[o + cx(i)]; }
+      for (i = 3; i <= 7; i++) { bY += Y[o + cx(i)]; bU += U[o + cx(i)]; }
+      for (x = 0; x < W; x++) {
+        out[o + x] = isEdge(Y[o + x], aY / 5, bY / 5, aU / 5, bU / 5);
+        p1 = o + cx(x - 2); p2 = o + cx(x - 7); p3 = o + cx(x + 8); p4 = o + cx(x + 3);
+        aY += Y[p1] - Y[p2]; aU += U[p1] - U[p2]; bY += Y[p3] - Y[p4]; bU += U[p3] - U[p4];
+      }
+    }
+    return out;
+  }
+  function dilateV(ink, W, H, r) {
+    var out = new Uint8Array(W * H), cnt = new Uint16Array(W), x, y, a, b;
+    for (y = 0; y <= Math.min(r, H - 1); y++) for (x = 0; x < W; x++) cnt[x] += ink[y * W + x];
+    for (y = 0; y < H; y++) {
+      for (x = 0; x < W; x++) out[y * W + x] = cnt[x] > 0 ? 1 : 0;
+      a = y + r + 1; b = y - r;
+      if (a < H) for (x = 0; x < W; x++) cnt[x] += ink[a * W + x];
+      if (b >= 0) for (x = 0; x < W; x++) cnt[x] -= ink[b * W + x];
+    }
+    return out;
+  }
+  function dilateH(ink, W, H, r) {
+    var out = new Uint8Array(W * H), y, x, o, c, a, b;
+    for (y = 0; y < H; y++) {
+      o = y * W; c = 0;
+      for (x = 0; x <= Math.min(r, W - 1); x++) c += ink[o + x];
+      for (x = 0; x < W; x++) {
+        out[o + x] = c > 0 ? 1 : 0;
+        a = x + r + 1; b = x - r;
+        if (a < W) c += ink[o + a];
+        if (b >= 0) c -= ink[o + b];
+      }
+    }
+    return out;
+  }
+  // A line is  u = b + sl * (t - tm)  (u across, t along). Phone photos are never perfectly square, so lines may lean a little.
+  function lpos(l, t) {   // position of a line at t; chained lines (curved pages) are piecewise linear
+    var p = l.pts;
+    if (!p) return l.b + l.sl * (t - l.tm);
+    var n = p.length, i, a, b;
+    if (t <= p[0][0]) { a = p[0]; b = p[1]; }
+    else if (t >= p[n - 1][0]) { a = p[n - 2]; b = p[n - 1]; }
+    else { i = 1; while (i < n - 1 && p[i][0] < t) i++; a = p[i - 1]; b = p[i]; }
+    return b[0] === a[0] ? a[1] : a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]);
+  }
+  function extPos(l, ta, tb, top) {   // furthest position of a (possibly curved) line over [ta, tb]: largest u if top, else smallest
+    var v = top ? -1e9 : 1e9, t, u, n = Math.max(1, Math.ceil((tb - ta) / 30));
+    for (var k = 0; k <= n; k++) { t = ta + (tb - ta) * k / n; u = lpos(l, t); if (top ? u > v : u < v) v = u; }
+    return v;
+  }
+  var SLOPES = [0, 0.002, -0.002, 0.004, -0.004, 0.006, -0.006, 0.008, -0.008, 0.010, -0.010, 0.012, -0.012, 0.014, -0.014];
+  function findLines(map, W, H, vertical, u0, u1, t0, t1, minLen, gapTol) {
+    var n = t1 - t0 + 1, tm = (t0 + t1) / 2, UM = vertical ? W : H, cands = [], off = new Int32Array(Math.max(n, 1));
+    var si, sl, i, b, uu, v, best, bs, be, s, last, gap, hits = 0;
+    if (n < minLen) return [];
+    var pieceLen = Math.max(60, Math.round(minLen * 0.4));
+    u0 = Math.max(0, Math.round(u0)); u1 = Math.min(UM - 1, Math.round(u1));
+    for (si = 0; si < SLOPES.length; si++) {
+      sl = SLOPES[si];
+      for (i = 0; i < n; i++) off[i] = Math.round(sl * (t0 + i - tm));
+      for (b = u0; b <= u1; b++) {
+        best = 0; bs = -1; be = -1; s = -1; last = -1; gap = 0;
+        for (i = 0; i < n; i++) {
+          uu = b + off[i];
+          v = (uu < 0 || uu >= UM) ? 0 : (vertical ? map[(t0 + i) * W + uu] : map[uu * W + t0 + i]);
+          if (v) { if (s < 0) { s = i; hits = 0; } last = i; gap = 0; hits++; }
+          else if (s >= 0 && ++gap > gapTol) { if (last - s + 1 > best && hits >= (last - s + 1) * 0.8) { best = last - s + 1; bs = s; be = last; } s = -1; gap = 0; }
+        }
+        if (s >= 0 && last - s + 1 > best && hits >= (last - s + 1) * 0.8) { best = last - s + 1; bs = s; be = last; }
+        if (best >= pieceLen) cands.push({ sl: sl, b: b, ts: t0 + bs, te: t0 + be, len: best });
+      }
+    }
+    cands.forEach(function (c) { c.um = c.b + c.sl * ((c.ts + c.te) / 2 - tm); });
+    cands.sort(function (p, q) { return p.um - q.um; });
+    var lines = [], order = [], used = new Uint8Array(cands.length), a, k;
+    for (a = 0; a < cands.length; a++) { cands[a].i = a; order.push(cands[a]); }
+    order.sort(function (p, q) { return q.len - p.len; });
+    order.forEach(function (bst) {   // strongest candidate first; everything within 8px of it (any slope) belongs to the same line
+      if (used[bst.i]) return;
+      var bmin = 1e9, bmax = -1e9, ts = 1e9, te = -1e9;
+      function take(c) {
+        if (used[c.i] || c.ts >= bst.te || c.te <= bst.ts) return false;
+        used[c.i] = 1;
+        if (c.sl === bst.sl && c.len >= bst.len * 0.85) { if (c.b < bmin) bmin = c.b; if (c.b > bmax) bmax = c.b; if (c.ts < ts) ts = c.ts; if (c.te > te) te = c.te; }
+        return true;
+      }
+      take(bst);
+      for (k = bst.i - 1; k >= 0 && bst.um - cands[k].um <= 8; k--) take(cands[k]);
+      for (k = bst.i + 1; k < cands.length && cands[k].um - bst.um <= 8; k++) take(cands[k]);
+      var lin = { sl: bst.sl, b: (bmin + bmax) / 2, tm: tm, ts: ts, te: te, w: bmax - bmin + 1 };
+      lin.y = lin.b + lin.sl * ((ts + te) / 2 - tm);
+      lines.push(lin);
+    });
+    // join pieces that continue each other (a page that is curved or photographed at an angle bends its ruled lines)
+    lines.sort(function (p, q) { return p.ts - q.ts; });
+    var chains = [];
+    lines.forEach(function (sg) {
+      var bestC = null, bd = 1e9;
+      chains.forEach(function (c) {
+        var L = c.segs[c.segs.length - 1], gp = sg.ts - L.te;
+        if (gp < -5 || gp > 150) return;
+        var d = Math.abs(lpos(L, L.te) - lpos(sg, sg.ts));
+        if (d <= 12 + 0.02 * Math.max(0, gp) && d < bd) { bd = d; bestC = c; }
+      });
+      if (bestC) bestC.segs.push(sg); else chains.push({ segs: [sg] });
+    });
+    var out = [];
+    chains.forEach(function (c) {
+      var sg = c.segs, f = sg[0], l = sg[sg.length - 1], lin = f;
+      if (sg.length > 1) {
+        var pts = [], w = 0, pe = -1e9;
+        sg.forEach(function (q) { pts.push([Math.max(q.ts, pe), lpos(q, Math.max(q.ts, pe))], [q.te, lpos(q, q.te)]); pe = q.te; if (q.w > w) w = q.w; });
+        lin = { pts: pts, ts: f.ts, te: l.te, w: w, sl: f.sl, b: f.b, tm: f.tm };
+        lin.y = lpos(lin, (lin.ts + lin.te) / 2);
+      }
+      if (lin.te - lin.ts + 1 >= minLen) out.push(lin);
+    });
+    out.sort(function (p, q) { return (q.te - q.ts) - (p.te - p.ts); });
+    var kept = [];
+    out.forEach(function (l) {   // a faint echo of a stronger line right next to it is not a separate line
+      var dup = kept.some(function (m) {
+        var a = Math.max(m.ts, l.ts), e = Math.min(m.te, l.te);
+        return e - a > 0.5 * (l.te - l.ts) && Math.abs(lpos(m, (a + e) / 2) - lpos(l, (a + e) / 2)) <= 14;
+      });
+      if (!dup) kept.push(l);
+    });
+    kept.sort(function (p, q) { return p.y - q.y; });
+    return kept;
+  }
+  function groupLines(lines, H) {
+    if (lines.length < 2) return [];
+    var gaps = [], i;
+    for (i = 1; i < lines.length; i++) gaps.push(lines[i].y - lines[i - 1].y);
+    var lim = Math.max(median(gaps.filter(function (g) { return g <= H * 0.4; })) * 2.5, H * 0.05);
+    var groups = [], cur = [lines[0]];
+    for (i = 1; i < lines.length; i++) {
+      var l = lines[i], p = cur[cur.length - 1];
+      var ov = Math.min(l.te, p.te) - Math.max(l.ts, p.ts), w = Math.min(l.te - l.ts, p.te - p.ts), wl = Math.max(l.te - l.ts, p.te - p.ts);
+      if (l.y - p.y <= lim && ov > 0.8 * w && w > 0.5 * wl) cur.push(l); else { groups.push(cur); cur = [l]; }
+    }
+    groups.push(cur);
+    return groups.filter(function (g) { return g.length >= 2; });
+  }
+  function inferCols(ink, W, xL, xR, g) {
+    if (g.length < 3 || g.length > 30) return null;
+    xL = Math.round(xL); xR = Math.round(xR);
+    var prof = new Uint16Array(xR - xL + 1), rows = 0, i, y, x, ya, yb;
+    for (i = 0; i < g.length - 1; i++) {
+      ya = Math.ceil(extPos(g[i], xL, xR, true) + g[i].w / 2 + 2);
+      yb = Math.floor(extPos(g[i + 1], xL, xR, false) - g[i + 1].w / 2 - 2);
+      for (y = ya; y <= yb; y++) {
+        rows++;
+        for (x = xL; x <= xR; x++) prof[x - xL] += ink[y * W + x];
+      }
+    }
+    if (rows < 20) return null;
+    var tol = Math.floor(rows * 0.01), first = -1, last = -1;
+    for (x = 0; x < prof.length; x++) if (prof[x] > tol) { if (first < 0) first = x; last = x; }
+    if (first < 0) return null;
+    var gapMin = Math.max(24, Math.round(W * 0.016)), edges = [xL], run = 0;
+    for (x = first; x <= last; x++) {
+      if (prof[x] <= tol) run++;
+      else { if (run >= gapMin) edges.push(xL + x - run / 2); run = 0; }
+    }
+    edges.push(xR);
+    return edges.length >= 3 ? edges : null;
+  }
+  // Shadows, double borders and page edges leave a very thin strip between two lines. Keep one of them:
+  // at the ends the inner line (the real table border), in the middle the stronger one.
+  function pruneThin(items, posOf, strengthOf, factor) {
+    for (;;) {
+      if (items.length <= 2) return;
+      var d = [], k, drop;
+      for (k = 0; k < items.length - 1; k++) d.push(posOf(items[k + 1]) - posOf(items[k]));
+      var md = median(d);
+      for (k = 0; k < d.length; k++) if (d[k] < md * factor) break;
+      if (k >= d.length) return;
+      drop = k === 0 ? 0 : (k === d.length - 1 ? k + 1 : (strengthOf(items[k]) >= strengthOf(items[k + 1]) ? k + 1 : k));
+      items.splice(drop, 1);
+    }
+  }
+  function analyzeGroup(g, ink, dv, dh, W, H, dhL) {
+    var xL = Infinity, xR = -Infinity, i, r, c;
+    g = g.slice();
+    var mx = 0;
+    g.forEach(function (l) { if (l.te - l.ts > mx) mx = l.te - l.ts; });
+    g = g.filter(function (l) { return !(l.cl >= 0.55 && (l.te - l.ts) < 0.85 * mx); });   // edges of a text row: cluttered and short
+    if (g.length < 2) return null;
+    (function () {
+      var xm = (Math.max(g[0].ts, g[g.length - 1].ts) + Math.min(g[0].te, g[g.length - 1].te)) / 2;
+      pruneThin(g, function (l) { return lpos(l, xm); }, function (l) { return (l.te - l.ts) + l.w; }, 0.4);
+    })();
+    g.forEach(function (l) { if (l.ts < xL) xL = l.ts; if (l.te > xR) xR = l.te; });
+    var topL = g[0], botL = g[g.length - 1];
+    var y0 = extPos(topL, xL, xR, false), y1 = extPos(botL, xL, xR, true), ymid = (y0 + y1) / 2;
+    var minV = Math.max(50, 0.5 * (y1 - y0));
+    var vl = findLines(dhL || dh, W, H, true, xL - 8, xR + 8, Math.max(0, Math.round(y0) - 8), Math.min(H - 1, Math.round(y1) + 8), minV, 3)
+      .filter(function (v) { return v.w <= 20; });
+    vl.forEach(function (v) { v.x = lpos(v, ymid); });
+    var edges = vl.map(function (v) { return { x: v.x, ln: v, w: v.w }; });
+    if (!edges.length || edges[0].x - xL > 25) edges.unshift({ x: xL, ln: null, w: 0 });
+    if (xR - edges[edges.length - 1].x > 25) edges.push({ x: xR, ln: null, w: 0 });
+    pruneThin(edges, function (e) { return e.x; }, function (e) { return e.ln ? (e.ln.te - e.ln.ts) + e.w : 0; }, 0.12);
+    var hasV = edges.length >= 3, colEdges = edges.map(function (e) { return e.x; });
+    if (!hasV) {
+      var inf = inferCols(ink, W, xL, xR, g);
+      if (!inf) return null;
+      colEdges = inf; vl = []; edges = inf.map(function (x) { return { x: x, ln: null, w: 0 }; });
+    }
+    var R = g.length - 1, C = colEdges.length - 1;
+    if (R * C < 2 || R * C > 150 || (R >= 15 && C <= 2)) return null;   // frames, lined notebook paper, huge grids
+    var parent = [];
+    for (i = 0; i < R * C; i++) parent.push(i);
+    function find(a) { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; }
+    function uni(a, b) { a = find(a); b = find(b); if (a !== b) parent[b] = a; }
+    function covV(e, rr) {   // how much of this vertical border is really there, along row rr
+      var ya = Math.round(lpos(g[rr], e.x)) + 5, yb = Math.round(lpos(g[rr + 1], e.x)) - 5, n = 0, tot = 0, y, xi;
+      for (y = ya; y <= yb; y++) { tot++; xi = Math.max(1, Math.min(W - 2, Math.round(lpos(e.ln, y)))); if (dh[y * W + xi] || dh[y * W + xi - 1] || dh[y * W + xi + 1]) n++; }
+      return tot > 0 ? n / tot : 1;
+    }
+    function covH(rr, cc) {   // ... and of this horizontal border, along column cc
+      var xa = Math.round(colEdges[cc]) + 5, xb = Math.round(colEdges[cc + 1]) - 5, n = 0, tot = 0, x, yi;
+      for (x = xa; x <= xb; x++) { tot++; yi = Math.max(1, Math.min(H - 2, Math.round(lpos(g[rr], x)))); if (dv[yi * W + x] || dv[(yi - 1) * W + x] || dv[(yi + 1) * W + x]) n++; }
+      return tot > 0 ? n / tot : 1;
+    }
+    if (hasV) {   // a missing inner line means merged cells
+      for (r = 0; r < R; r++) for (c = 1; c < C; c++) if (edges[c].ln && covV(edges[c], r) < 0.3) uni(r * C + c - 1, r * C + c);
+      for (r = 1; r < R; r++) for (c = 0; c < C; c++) if (covH(r, c) < 0.3) uni((r - 1) * C + c, r * C + c);
+    }
+    var groups = {}, cells = [];
+    for (i = 0; i < R * C; i++) { var k = find(i); (groups[k] = groups[k] || []).push(i); }
+    Object.keys(groups).forEach(function (key) {
+      var r0 = 1e9, r1 = -1, c0 = 1e9, c1 = -1;
+      groups[key].forEach(function (idx) {
+        var rr = (idx / C) | 0, cc = idx % C;
+        if (rr < r0) r0 = rr; if (rr > r1) r1 = rr; if (cc < c0) c0 = cc; if (cc > c1) c1 = cc;
+      });
+      var xa = colEdges[c0] + (edges[c0].ln ? 3 : 10), xb = colEdges[c1 + 1] - (edges[c1 + 1].ln ? 3 : 10);
+      var top = extPos(g[r0], xa, xb, true) + 3;
+      var bot = extPos(g[r1 + 1], xa, xb, false) - 3;
+      var cell = { r0: r0, c0: c0, r1: r1, c1: c1, x: xa, y: top, w: xb - xa, h: bot - top };
+      if (cell.w >= 12 && cell.h >= 12) cells.push(cell);
+    });
+    cells.sort(function (a, b) { return a.r0 - b.r0 || a.c0 - b.c0; });
+    return { x0: xL, x1: xR, y0: y0 - topL.w / 2, y1: y1 + botL.w / 2, R: R, C: C, cells: cells, hLines: g, vLines: vl, hasV: hasV };
+  }
+  // fraction of a line's length that has dark ink right beside it (within ~12px). A rule has clear space next to it,
+  // the edges of a text row do not.
+  function clutter(l, ink, W, H) {
+    var hw = Math.ceil(l.w / 2) + 3, n = 0, hit = 0, x, y, k, f, c;
+    for (x = Math.round(l.ts); x <= Math.round(l.te) && x < W; x += 2) {
+      c = Math.round(lpos(l, x)); f = 0;
+      for (k = hw; k <= hw + 9 && !f; k++) {
+        y = c - k; if (y >= 0 && y < H && ink[y * W + x]) f = 1;
+        y = c + k; if (y >= 0 && y < H && ink[y * W + x]) f = 1;
+      }
+      n++; hit += f;
+    }
+    return n ? hit / n : 0;
+  }
+  // fraction of a line's length whose centre carries dark ink (solid or dotted dark rules do, text edges and shading edges mostly do not)
+  function centreInk(l, ink, W, H) {
+    var hw = Math.max(1, Math.floor(l.w / 2)), n = 0, hit = 0, x, y, k, f, c;
+    for (x = Math.round(l.ts); x <= Math.round(l.te) && x < W; x += 2) {
+      c = Math.round(lpos(l, x)); f = 0;
+      for (k = -hw; k <= hw && !f; k++) { y = c + k; if (y >= 0 && y < H && ink[y * W + x]) f = 1; }
+      n++; hit += f;
+    }
+    return n ? hit / n : 0;
+  }
+  // maps = { bh, bv } boundary maps (see boundaryH/V); without them the dark-ink map is used for both.
+  function detectTablesNew(ink, W, H, maps) {
+    var dv = dilateV(maps ? maps.bh : ink, W, H, 2), minLen = Math.max(120, Math.round(W * 0.22));
+    // dotted / dashed rules are bridged by widening the map along the rule; letters in a row of text are not
+    var lines = findLines(dilateH(dv, W, H, 2), W, H, false, 0, H - 1, 0, W - 1, minLen, 3).filter(function (l) { return l.w <= 24; });
+    lines.forEach(function (l) { l.cl = clutter(l, ink, W, H); l.ci = centreInk(l, ink, W, H); });
+    var groups = groupLines(lines, H);
+    if (!groups.length) return [];
+    var dh = dilateH(maps ? maps.bv : ink, W, H, 2), dhL = dilateV(dh, W, H, 2), out = [];
+    groups.forEach(function (g) {
+      var t = null;
+      try { t = analyzeGroup(g, ink, dv, dh, W, H, dhL); } catch (e) { t = null; }
+      if (t) out.push(t);
+    });
+    return out;
+  }
+  // ----- simpler detector for perfectly straight, dark-ruled tables (kept as a second opinion) -----
+  // longest run of set pixels along a row (map[y*W+x]) or a column, tolerating small gaps
+  function longestRunOld(map, W, fixed, from, to, vertical, gapTol) {
+    var best = 0, bs = 0, be = -1, s = -1, last = -1, gap = 0, p, v;
+    for (p = from; p <= to; p++) {
+      v = vertical ? map[p * W + fixed] : map[fixed * W + p];
+      if (v) { if (s < 0) s = p; last = p; gap = 0; }
+      else if (s >= 0) {
+        gap++;
+        if (gap > gapTol) { if (last - s + 1 > best) { best = last - s + 1; bs = s; be = last; } s = -1; gap = 0; }
+      }
+    }
+    if (s >= 0 && last - s + 1 > best) { best = last - s + 1; bs = s; be = last; }
+    return { len: best, s: bs, e: be };
+  }
+  function findHLinesOld(dv, W, H) {
+    var minLen = Math.max(120, Math.round(W * 0.22)), lines = [], cur = null, y, r;
+    for (y = 0; y < H; y++) {
+      r = longestRunOld(dv, W, y, 0, W - 1, false, 3);
+      if (r.len < minLen) continue;
+      if (cur && y - cur.yb <= 2) { cur.yb = y; if (r.s < cur.s) cur.s = r.s; if (r.e > cur.e) cur.e = r.e; }
+      else { cur = { ya: y, yb: y, s: r.s, e: r.e }; lines.push(cur); }
+    }
+    return lines.filter(function (l) { return l.yb - l.ya + 1 <= 20; })
+      .map(function (l) { return { y: (l.ya + l.yb) / 2, ya: l.ya, yb: l.yb, s: l.s, e: l.e }; });
+  }
+  function groupLinesOld(lines, H) {
+    if (lines.length < 2) return [];
+    var gaps = [], i;
+    for (i = 1; i < lines.length; i++) gaps.push(lines[i].y - lines[i - 1].y);
+    var lim = Math.max(median(gaps.filter(function (g) { return g <= H * 0.15; })) * 3, H * 0.05);
+    var groups = [], cur = [lines[0]];
+    for (i = 1; i < lines.length; i++) {
+      var l = lines[i], p = cur[cur.length - 1];
+      var ov = Math.min(l.e, p.e) - Math.max(l.s, p.s), w = Math.min(l.e - l.s, p.e - p.s);
+      if (l.y - p.y <= lim && ov > 0.5 * w) cur.push(l); else { groups.push(cur); cur = [l]; }
+    }
+    groups.push(cur);
+    return groups.filter(function (g) { return g.length >= 2; });
+  }
+  function inferColsOld(ink, W, xL, xR, g) {
+    if (g.length < 3 || g.length > 30) return null;
+    var prof = new Uint16Array(xR - xL + 1), rows = 0, i, y, x;
+    for (i = 0; i < g.length - 1; i++) {
+      for (y = Math.ceil(g[i].yb) + 2; y <= Math.floor(g[i + 1].ya) - 2; y++) {
+        rows++;
+        for (x = xL; x <= xR; x++) prof[x - xL] += ink[y * W + x];
+      }
+    }
+    if (rows < 20) return null;
+    var tol = Math.floor(rows * 0.01), first = -1, last = -1;
+    for (x = 0; x < prof.length; x++) if (prof[x] > tol) { if (first < 0) first = x; last = x; }
+    if (first < 0) return null;
+    var gapMin = Math.max(24, Math.round(W * 0.016)), edges = [xL], run = 0;
+    for (x = first; x <= last; x++) {
+      if (prof[x] <= tol) run++;
+      else { if (run >= gapMin) edges.push(xL + x - run / 2); run = 0; }
+    }
+    edges.push(xR);
+    return edges.length >= 3 ? edges : null;
+  }
+  function edgeCoverVOld(dh, W, x, ya, yb) {
+    var xi = Math.max(1, Math.min(W - 2, Math.round(x))), n = 0, tot = 0, y;
+    for (y = Math.round(ya) + 5; y <= Math.round(yb) - 5; y++) { tot++; if (dh[y * W + xi] || dh[y * W + xi - 1] || dh[y * W + xi + 1]) n++; }
+    return tot > 0 ? n / tot : 1;
+  }
+  function edgeCoverHOld(dv, W, H, y, xa, xb) {
+    var yi = Math.max(1, Math.min(H - 2, Math.round(y))), n = 0, tot = 0, x;
+    for (x = Math.round(xa) + 5; x <= Math.round(xb) - 5; x++) { tot++; if (dv[yi * W + x] || dv[(yi - 1) * W + x] || dv[(yi + 1) * W + x]) n++; }
+    return tot > 0 ? n / tot : 1;
+  }
+  function analyzeGroupOld(g, ink, dv, dh, W, H) {
+    var y0 = g[0].y, y1 = g[g.length - 1].y, xL = Infinity, xR = -Infinity, i, r, c, x;
+    g.forEach(function (l) { if (l.s < xL) xL = l.s; if (l.e > xR) xR = l.e; });
+    var rowEdges = g.map(function (l) { return l.y; });
+    var minV = Math.max(50, 0.5 * (y1 - y0));
+    var ya = Math.max(0, Math.round(y0) - 8), yb = Math.min(H - 1, Math.round(y1) + 8);
+    var vl = [], cur = null;
+    for (x = Math.max(0, xL - 8); x <= Math.min(W - 1, xR + 8); x++) {
+      if (longestRunOld(dh, W, x, ya, yb, true, 3).len < minV) continue;
+      if (cur && x - cur.xb <= 1) cur.xb = x; else { cur = { xa: x, xb: x }; vl.push(cur); }
+    }
+    vl = vl.filter(function (v) { return v.xb - v.xa + 1 <= 20; }).map(function (v) { v.x = (v.xa + v.xb) / 2; return v; });
+    var colEdges = vl.map(function (v) { return v.x; });
+    if (!colEdges.length || colEdges[0] - xL > 25) colEdges.unshift(xL);
+    if (xR - colEdges[colEdges.length - 1] > 25) colEdges.push(xR);
+    var hasV = colEdges.length >= 3;
+    if (!hasV) {
+      var inf = inferColsOld(ink, W, xL, xR, g);
+      if (!inf) return null;
+      colEdges = inf; vl = [];
+    }
+    var R = rowEdges.length - 1, C = colEdges.length - 1;
+    if (R * C < 2 || R * C > 150 || (R >= 15 && C <= 2)) return null;   // frames, lined notebook paper, huge grids
+    var parent = [];
+    for (i = 0; i < R * C; i++) parent.push(i);
+    function find(a) { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; }
+    function uni(a, b) { a = find(a); b = find(b); if (a !== b) parent[b] = a; }
+    if (hasV) {   // a missing inner line means merged cells
+      for (r = 0; r < R; r++) for (c = 1; c < C; c++) if (edgeCoverVOld(dh, W, colEdges[c], rowEdges[r], rowEdges[r + 1]) < 0.6) uni(r * C + c - 1, r * C + c);
+      for (r = 1; r < R; r++) for (c = 0; c < C; c++) if (edgeCoverHOld(dv, W, H, rowEdges[r], colEdges[c], colEdges[c + 1]) < 0.6) uni((r - 1) * C + c, r * C + c);
+    }
+    var groups = {};
+    for (i = 0; i < R * C; i++) { var k = find(i); (groups[k] = groups[k] || []).push(i); }
+    var pad = 5, cells = [];
+    Object.keys(groups).forEach(function (key) {
+      var r0 = 1e9, r1 = -1, c0 = 1e9, c1 = -1;
+      groups[key].forEach(function (idx) {
+        var rr = (idx / C) | 0, cc = idx % C;
+        if (rr < r0) r0 = rr; if (rr > r1) r1 = rr; if (cc < c0) c0 = cc; if (cc > c1) c1 = cc;
+      });
+      var cell = { r0: r0, c0: c0, r1: r1, c1: c1, x: colEdges[c0] + pad, y: rowEdges[r0] + pad,
+                   w: colEdges[c1 + 1] - colEdges[c0] - 2 * pad, h: rowEdges[r1 + 1] - rowEdges[r0] - 2 * pad };
+      if (cell.w >= 12 && cell.h >= 12) cells.push(cell);
+    });
+    cells.sort(function (a, b) { return a.r0 - b.r0 || a.c0 - b.c0; });
+    return { x0: xL, x1: xR, y0: y0, y1: y1, R: R, C: C, cells: cells, hLines: g, vLines: vl, hasV: hasV };
+  }
+  function detectTablesOld(ink, W, H) {
+    var dv = dilateV(ink, W, H, 2), groups = groupLinesOld(findHLinesOld(dv, W, H), H);
+    if (!groups.length) return [];
+    var dh = dilateH(ink, W, H, 2), out = [];
+    groups.forEach(function (g) {
+      var t = null;
+      try { t = analyzeGroupOld(g, ink, dv, dh, W, H); } catch (e) { t = null; }
+      if (!t) return;
+      t.hLines = t.hLines.map(function (l) { return { sl: 0, b: l.y, tm: 0, ts: l.s, te: l.e, w: l.yb - l.ya + 1, y: l.y }; });
+      t.vLines = t.vLines.map(function (v) { return { sl: 0, b: v.x, tm: 0, ts: t.y0 - 8, te: t.y1 + 8, w: v.xb - v.xa + 1, x: v.x }; });
+      out.push(t);
+    });
+    return out;
+  }
+  // Both detectors look at the page; where they disagree the one that found more cells wins.
+  function detectTables(ink, W, H, maps) {
+    var a = [], b = [];
+    try { a = detectTablesNew(ink, W, H, maps); } catch (e) { a = []; }
+    try { b = detectTablesOld(ink, W, H); } catch (e) { b = []; }
+    var res = a.slice();
+    b.forEach(function (t) {
+      var over = res.filter(function (u) { var o = Math.min(u.y1, t.y1) - Math.max(u.y0, t.y0); return o > 0.3 * Math.min(u.y1 - u.y0, t.y1 - t.y0); });
+      if (!over.length) { res.push(t); return; }
+      var n = 0; over.forEach(function (u) { n += u.cells.length; });
+      if (t.cells.length > n) { res = res.filter(function (u) { return over.indexOf(u) < 0; }); res.push(t); }
+    });
+    res.sort(function (p, q) { return p.y0 - q.y0; });
+    return res;
+  }
+  function blank(buf, W, H, x0, y0, x1, y1) {
+    x0 = Math.max(0, Math.round(x0)); y0 = Math.max(0, Math.round(y0)); x1 = Math.min(W - 1, Math.round(x1)); y1 = Math.min(H - 1, Math.round(y1));
+    for (var y = y0; y <= y1; y++) buf.fill(0, y * W + x0, y * W + x1 + 1);
+  }
+  function stripLines(clean, W, H, t) {
+    var xa = Math.max(0, Math.round(t.x0) - 2), xb = Math.min(W - 1, Math.round(t.x1) + 2);
+    var ya = Math.max(0, Math.round(t.y0) - 3), yb = Math.min(H - 1, Math.round(t.y1) + 3), x, y, c, hw;
+    t.hLines.forEach(function (l) {
+      hw = Math.ceil(l.w / 2) + 2;
+      for (x = xa; x <= xb; x++) { c = Math.round(lpos(l, x)); for (y = Math.max(0, c - hw); y <= Math.min(H - 1, c + hw); y++) clean[y * W + x] = 0; }
+    });
+    t.vLines.forEach(function (v) {
+      hw = Math.ceil(v.w / 2) + 2;
+      for (y = ya; y <= yb; y++) { c = Math.round(lpos(v, y)); for (x = Math.max(0, c - hw); x <= Math.min(W - 1, c + hw); x++) clean[y * W + x] = 0; }
+    });
+  }
+  // Removes solid dark patches (shadows, page edges, stains) but keeps strokes: a patch is anything that still stands after
+  // opening the ink with a (2r+1)-square, plus a little margin around it.
+  function dropThick(loc, w, h, r) {
+    var k = 2 * r + 1, W2 = w + 2 * r, H2 = h + 2 * r, x, y, i, j;
+    if (w < k || h < k) return;
+    var pad = new Uint8Array(W2 * H2);
+    pad.fill(1);
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) pad[(y + r) * W2 + x + r] = loc[y * w + x];
+    var S = W2 + 1, ii = new Int32Array((W2 + 1) * (H2 + 1));
+    for (y = 0; y < H2; y++) { var row = 0; for (x = 0; x < W2; x++) { row += pad[y * W2 + x]; ii[(y + 1) * S + x + 1] = ii[y * S + x + 1] + row; } }
+    var er = new Uint8Array(w * h), any = 0, full = k * k;
+    for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+      if (!loc[y * w + x]) continue;
+      var c = ii[(y + k) * S + x + k] - ii[y * S + x + k] - ii[(y + k) * S + x] + ii[y * S + x];
+      if (c === full) { er[y * w + x] = 1; any = 1; }
+    }
+    if (!any) return;
+    // dilate the eroded core back by r (+2 for the ragged rim), separably
+    var m = r + 2, tmp = new Uint8Array(w * h), cnt;
+    for (y = 0; y < h; y++) { cnt = 0; for (x = 0; x < Math.min(m, w); x++) cnt += er[y * w + x];
+      for (x = 0; x < w; x++) { if (x + m < w) cnt += er[y * w + x + m]; if (x - m - 1 >= 0) cnt -= er[y * w + x - m - 1]; tmp[y * w + x] = cnt > 0 ? 1 : 0; } }
+    var col = new Int32Array(w);
+    for (y = 0; y < Math.min(m, h); y++) for (x = 0; x < w; x++) col[x] += tmp[y * w + x];
+    for (y = 0; y < h; y++) {
+      for (x = 0; x < w; x++) { if (y + m < h) col[x] += tmp[(y + m) * w + x]; if (y - m - 1 >= 0) col[x] -= tmp[(y - m - 1) * w + x]; if (col[x] > 0) loc[y * w + x] = 0; }
+    }
+  }
+  // Cut one cell out of the ink map. Shadows and page edges next to the border show up as big dark blobs
+  // glued to the cell's edge; they are removed, text (which sits inside the cell) is kept.
+  function cropCanvas(buf, W, H, x, y, w, h) {
+    x = Math.max(0, Math.round(x)); y = Math.max(0, Math.round(y));
+    w = Math.min(Math.round(w), W - x); h = Math.min(Math.round(h), H - y);
+    if (w < 8 || h < 8) return null;
+    var loc = new Uint8Array(w * h), xx, yy, i, j;
+    for (yy = 0; yy < h; yy++) for (xx = 0; xx < w; xx++) loc[yy * w + xx] = buf[(y + yy) * W + x + xx];
+    dropThick(loc, w, h, Math.max(6, Math.round(h * 0.08)));
+    var seen = new Uint8Array(w * h), stack = new Int32Array(w * h), comp = [];
+    for (i = 0; i < loc.length; i++) {
+      if (!loc[i] || seen[i]) continue;
+      var sp = 0, minx = w, maxx = 0, miny = h, maxy = 0, cnt = 0, p, px, py;
+      stack[sp++] = i; seen[i] = 1; comp.length = 0;
+      while (sp > 0) {
+        p = stack[--sp]; px = p % w; py = (p - px) / w; comp.push(p); cnt++;
+        if (px < minx) minx = px; if (px > maxx) maxx = px; if (py < miny) miny = py; if (py > maxy) maxy = py;
+        if (px > 0 && loc[p - 1] && !seen[p - 1]) { seen[p - 1] = 1; stack[sp++] = p - 1; }
+        if (px < w - 1 && loc[p + 1] && !seen[p + 1]) { seen[p + 1] = 1; stack[sp++] = p + 1; }
+        if (py > 0 && loc[p - w] && !seen[p - w]) { seen[p - w] = 1; stack[sp++] = p - w; }
+        if (py < h - 1 && loc[p + w] && !seen[p + w]) { seen[p + w] = 1; stack[sp++] = p + w; }
+      }
+      var bw = maxx - minx + 1, bh = maxy - miny + 1;
+      var touches = minx === 0 || miny === 0 || maxx === w - 1 || maxy === h - 1;
+      if (touches && (bw > 0.4 * w || bh > 0.6 * h || (cnt / (bw * bh) > 0.55 && cnt > 0.01 * w * h))) for (j = 0; j < comp.length; j++) loc[comp[j]] = 0;
+    }
+    var pad = 14, c = document.createElement('canvas'), n = 0, o;
+    c.width = w + 2 * pad; c.height = h + 2 * pad;
+    var cx = c.getContext('2d'), img = cx.createImageData(c.width, c.height), d = img.data;
+    d.fill(255);
+    for (yy = 0; yy < h; yy++) for (xx = 0; xx < w; xx++) {
+      if (loc[yy * w + xx]) { n++; o = ((yy + pad) * c.width + xx + pad) * 4; d[o] = d[o + 1] = d[o + 2] = 0; }
+    }
+    if (n < 15) return null;
+    cx.putImageData(img, 0, 0);
+    return c;
+  }
+
+  // ----- recognition -----
+  async function rec(worker, canvas, psm) {
+    await worker.setParameters({ tessedit_pageseg_mode: psm, user_defined_dpi: '300' });
+    var r = await worker.recognize(canvas);
+    return (r && r.data) || {};
+  }
+  function linesOf(data) {
+    var ls = Array.isArray(data.lines) && data.lines.length ? data.lines : null;
+    if (!ls) {
+      ls = [];
+      (data.blocks || []).forEach(function (b) { (b.paragraphs || []).forEach(function (p) { (p.lines || []).forEach(function (l) { ls.push(l); }); }); });
+    }
+    var dc = typeof data.confidence === 'number' ? data.confidence : 60;
+    if (ls.length) return ls.map(function (l) {
+      return { text: String(l.text || '').replace(/\n+$/, ''), conf: typeof l.confidence === 'number' ? l.confidence : dc,
+               y0: l.bbox ? l.bbox.y0 : null, y1: l.bbox ? l.bbox.y1 : null };
+    });
+    return String(data.text || '').split('\n').map(function (t) { return { text: t, conf: dc, y0: null, y1: null }; });
+  }
+  function cleanLines(ls) {
+    var out = [];
+    ls.forEach(function (l) { var t = fixLine(l.text); if (!isJunk(t, l.conf)) out.push({ text: t, conf: l.conf, y0: l.y0, y1: l.y1 }); });
+    return out;
+  }
+  function joinCell(ls) {
+    var s = '';
+    ls.forEach(function (l) {
+      var t = l.text.trim(); if (!t) return;
+      if (!s) s = t; else s += (RE_CJK.test(s.slice(-1)) && RE_CJK.test(t.charAt(0)) ? '' : ' ') + t;
+    });
+    return s;
+  }
+  function compose(lines, tables) {
+    var out = [], ti = 0, prevBottom = null;
+    tables.sort(function (a, b) { return a.y0 - b.y0; });
+    var medH = median(lines.map(function (l) { return (l.y0 != null && l.y1 != null) ? l.y1 - l.y0 : 0; }).filter(function (v) { return v > 0; })) || 30;
+    function pushTable(t) {
+      if (out.length && out[out.length - 1] !== '') out.push('');
+      out.push(tableToMd(t.rows, true)); out.push('');
+      prevBottom = t.y1;
+    }
+    lines.forEach(function (l) {
+      while (ti < tables.length && tables[ti].y0 <= l.y0) pushTable(tables[ti++]);
+      if (prevBottom != null && l.y0 != null && l.y0 - prevBottom > medH * 1.1 && out.length && out[out.length - 1] !== '') out.push('');
+      out.push(l.text); prevBottom = l.y1;
+    });
+    while (ti < tables.length) pushTable(tables[ti++]);
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  // Reads one photo/screenshot. Returns { title, text, conf, tables }.
+  async function scanImage(file, worker, opt, say, chk) {
+    say('整理圖片', false);
+    var c0 = await loadPage(file); chk(); await sleep(0);
+    var g0 = grayOf(c0), deg = 0;
+    try { deg = estimateSkew(c0); } catch (e) { deg = 0; }
+    var pl = paperLevel(g0), c1 = c0;
+    if (Math.abs(deg) >= 0.25) c1 = rotated(c0, -deg, 'rgb(' + pl + ',' + pl + ',' + pl + ')');
+    c0 = null; chk(); await sleep(0);
+    var W = c1.width, H = c1.height, g = grayOf(c1), ink = binarize(g, W, H), maps = null;
+    if (opt.tables !== false) {
+      try { var uc = chromaOf(c1); maps = { bh: boundaryH(g, uc, W, H), bv: boundaryV(g, uc, W, H) }; } catch (e) { maps = null; }
+    }
+    c1 = null; chk(); await sleep(0);
+
+    var tables = [];
+    if (opt.tables !== false) {
+      say('偵測表格', false);
+      try { tables = detectTables(ink, W, H, maps); } catch (e) { tables = []; }
+      maps = null;
+    }
+    chk(); await sleep(0);
+    var clean = ink.slice();
+    tables.forEach(function (t) { if (t.hasV || t.hLines) stripLines(clean, W, H, t); });
+    var textInk = clean.slice(), gray2 = null;
+    tables.forEach(function (t) { blank(textInk, W, H, t.x0 - 8, t.y0 - 8, t.x1 + 8, t.y1 + 8); });
+
+    say('辨識文字', true);
+    var data = await rec(worker, canvasFromBuf(textInk, W, H, true), '3'); chk();
+    var lines = cleanLines(linesOf(data)), conf = typeof data.confidence === 'number' ? data.confidence : 0;
+    if (!lines.length || conf < 70) {
+      say('信心偏低，換一種處理再試一次', true);
+      gray2 = stretchGray(g);
+      tables.forEach(function (t) {
+        var y0 = Math.max(0, Math.round(t.y0 - 8)), y1 = Math.min(H - 1, Math.round(t.y1 + 8)), x0 = Math.max(0, Math.round(t.x0 - 8)), x1 = Math.min(W - 1, Math.round(t.x1 + 8));
+        for (var y = y0; y <= y1; y++) gray2.fill(255, y * W + x0, y * W + x1 + 1);
+      });
+      var alt = await rec(worker, canvasFromBuf(gray2, W, H, false), '3'); chk();
+      var altLines = cleanLines(linesOf(alt)), altConf = typeof alt.confidence === 'number' ? alt.confidence : 0;
+      if (altLines.length && (!lines.length || altConf > conf + 3)) { lines = altLines; conf = altConf; }
+    }
+    var confSum = 0, chars = 0;
+    lines.forEach(function (l) { confSum += l.conf * l.text.length; chars += l.text.length; });
+
+    var done = [];
+    if (tables.length) {
+      await worker.setParameters({ tessedit_pageseg_mode: '6', user_defined_dpi: '300' });
+      for (var ti = 0; ti < tables.length; ti++) {
+        var t = tables[ti], rows = [], r, c, filled = 0;
+        for (r = 0; r < t.R; r++) { rows.push([]); for (c = 0; c < t.C; c++) rows[r].push(''); }
+        for (var ci = 0; ci < t.cells.length; ci++) {
+          chk();
+          say('辨識表格' + (tables.length > 1 ? ' ' + (ti + 1) + '/' + tables.length : '') + '：儲存格 ' + (ci + 1) + '/' + t.cells.length, false);
+          var cell = t.cells[ci], cnv = cropCanvas(clean, W, H, cell.x, cell.y, cell.w, cell.h);
+          if (cnv) {
+            var res = await worker.recognize(cnv), cls = cleanLines(linesOf((res && res.data) || {}));
+            var txt = joinCell(cls);
+            if (txt) { rows[cell.r0][cell.c0] = txt; filled++; }
+            cls.forEach(function (l) { confSum += l.conf * l.text.length; chars += l.text.length; });
+          }
+          if (ci % 4 === 3) await sleep(0);
+        }
+        if (filled) done.push({ y0: t.y0, y1: t.y1, rows: rows });
+      }
+    }
+    var text = compose(lines, done), first = lines.length ? lines[0].text : '';
+    return { title: first.replace(/^[#*\-•・【\[「『\s]+/, '').slice(0, 30), text: text,
+             conf: chars ? Math.round(confSum / chars) : Math.round(conf), tables: done.length };
+  }
+
+  // ---------- rendering ----------
+  function renderCounts() { $('counts').textContent = '單字 ' + S.words.length + ' · 文法 ' + S.grammar.length; updateNotice(); }
+  // 星號：單字、文法列表與詳細畫面共用的星號開關鈕（存成 1/0，不用 true/false，備份匯入時才不會被過濾掉）。
+  function starToggle(col, id, initial) {
+    var on = !!initial;
+    var b = h('button', { class: 'ib star' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on),
+      'aria-label': on ? '取消星號' : '標記星號', onclick: function (e) {
+        e.stopPropagation();
+        on = !on;
+        b.className = 'ib star' + (on ? ' on' : '');
+        b.setAttribute('aria-pressed', String(on));
+        b.setAttribute('aria-label', on ? '取消星號' : '標記星號');
+        store.patch(col, id, { starred: on ? 1 : 0 }).catch(function () {});
+      } }, icon('star'));
+    return b;
+  }
+  function wordRow(w) {
+    var busy = S.busy.has(w.id), has = !!str(w.meaning);
+    var right;
+    if (busy) right = h('span', { class: 'chip' }, h('i', { class: 'dot' }), '翻譯中');
+    else if (has) right = [h('div', { text: w.meaning }), w.pos ? h('div', { class: 'pos', text: w.pos }) : null];
+    else right = h('span', { class: 'chip', text: '待翻譯' });
+    return h('li', null, starToggle('words', w.id, w.starred),
+      h('button', { class: 'row', type: 'button', onclick: function () { openWord(w.id); } },
+        h('div', null, w.reading ? h('div', { class: 'rd', lang: 'ja', text: w.reading }) : null, h('div', { class: 'hw', lang: 'ja', text: w.word })),
+        h('div', { class: 'mn' }, right)));
+  }
+  function renderWords() {
+    renderCounts();
+    var q = S.q.words.trim().toLowerCase();
+    var rows = S.words.filter(function (w) {
+      if (S.starOnly.words && !w.starred) return false;
+      return !q || [w.word, w.reading, w.meaning, w.pos, w.example, w.note].join('\n').toLowerCase().indexOf(q) >= 0;
+    });
+    var list = $('wordList'); list.replaceChildren();
+    if (!S.loaded.words) list.append(h('li', { class: 'empty', text: '載入中…' }));
+    else if (!S.words.length) list.append(h('li', { class: 'empty', text: '還沒有單字。在上方輸入日文（英文也可以），一次可以貼上很多行。' }));
+    else if (!rows.length) list.append(h('li', { class: 'empty', text: S.starOnly.words && !q ? '還沒有加星號的單字，點單字左邊的星星即可標記。' : '沒有符合的單字。' }));
+    else rows.forEach(function (w) { list.append(wordRow(w)); });
+    $('wCount').textContent = S.words.length ? ((q || S.starOnly.words) ? rows.length + ' / ' : '') + S.words.length + ' 個' : '';
+    var pend = S.words.filter(function (w) { return !str(w.meaning) && !S.busy.has(w.id); });
+    $('pendingBar').hidden = !pend.length;
+    $('pendingTxt').textContent = '有 ' + pend.length + ' 個單字還沒翻譯';
+  }
+  function titleOf(g) {
+    if (str(g.title)) return g.title;
+    var first = (g.body || '').split('\n').find(function (l) { return l.trim(); });
+    return first ? stripInlineMd(first).slice(0, 30) : '（未命名）';
+  }
+  // 文法排序：沒被手動拖拉過的筆記維持原本「最近更新在前」；只要拖拉過一次，該筆記就有自己的 order（數字愈小愈前面），
+  // 之後新增的筆記還沒有 order，一律排在所有「已手動排序」的筆記前面（跟原本「新筆記在最前」的習慣一致）。
+  function sortGrammarRows(list) {
+    return list.slice().sort(function (a, b) {
+      var ao = typeof a.order === 'number', bo = typeof b.order === 'number';
+      if (ao && bo) return a.order - b.order;
+      if (ao !== bo) return ao ? 1 : -1;
+      return (b.updatedAt || 0) - (a.updatedAt || 0);
+    });
+  }
+  function renderGrammar() {
+    renderCounts();
+    var q = S.reorderGrammar ? '' : S.q.grammar.trim().toLowerCase();
+    var rows = S.grammar.filter(function (g) {
+      if (!S.reorderGrammar && S.starOnly.grammar && !g.starred) return false;
+      return !q || ((g.title || '') + '\n' + (g.body || '')).toLowerCase().indexOf(q) >= 0;
+    });
+    rows = sortGrammarRows(rows);
+    var list = $('gList'); list.replaceChildren();
+    if (!S.loaded.grammar) list.append(h('li', { class: 'empty', text: '載入中…' }));
+    else if (!S.grammar.length) list.append(h('li', { class: 'empty', text: '還沒有文法筆記。點右下角的「＋」，拍照或選擇圖片，文字會自動貼進來，之後都可以再編輯。' }));
+    else if (!rows.length) list.append(h('li', { class: 'empty', text: S.starOnly.grammar && !q ? '還沒有加星號的文法筆記，點筆記左邊的星星即可標記。' : '沒有符合的筆記。' }));
+    else rows.forEach(function (g) {
+      if (S.reorderGrammar) {
+        var handle = h('button', { class: 'ib drag-handle', type: 'button', 'aria-label': '拖曳排序：' + titleOf(g) }, icon('grip'));
+        list.append(h('li', { 'data-id': g.id }, handle,
+          h('div', { class: 'g' },
+            h('div', { class: 'g-top' }, h('div', { class: 'g-t', lang: 'ja', text: titleOf(g) }), h('time', { class: 'g-d', text: fmtDate(g.updatedAt) })),
+            h('div', { class: 'g-p', lang: 'ja', text: previewOf(g.body) }))));
+      } else {
+        list.append(h('li', { 'data-id': g.id }, starToggle('grammar', g.id, g.starred),
+          h('button', { class: 'g', type: 'button', onclick: function () { openGrammar(g.id); } },
+            h('div', { class: 'g-top' }, h('div', { class: 'g-t', lang: 'ja', text: titleOf(g) }), h('time', { class: 'g-d', text: fmtDate(g.updatedAt) })),
+            h('div', { class: 'g-p', lang: 'ja', text: previewOf(g.body) }))));
+      }
+    });
+    $('gCount').textContent = S.grammar.length ? ((q || S.starOnly.grammar) ? rows.length + ' / ' : '') + S.grammar.length + ' 則' : '';
+  }
+
+  // ---------- sheet + autosave ----------
+  var sheetClose = null;
+  function showSheet(title, right, bodyEl, beforeClose, statusEl) {
+    var sh = $('sheet');
+    var close = async function () {
+      if (beforeClose) { try { await beforeClose(); } catch (e) {} }
+      sh.hidden = true; sh.replaceChildren(); sheetClose = null;
+    };
+    sh.replaceChildren(
+      h('div', { class: 'sheet-h' },
+        h('button', { class: 'ib', type: 'button', 'aria-label': '返回', onclick: close }, icon('back')),
+        h('div', { class: 'sheet-t', text: title }), statusEl, right),
+      h('div', { class: 'sheet-b' }, h('div', { class: 'sheet-in' }, bodyEl)));
+    sh.hidden = false; sheetClose = close;
+    sh.querySelector('.sheet-b').scrollTop = 0;
+  }
+  function autosaver(saveFn, statusEl) {
+    var timer = null, dirty = false, stopped = false, chain = Promise.resolve();
+    function say(t) { statusEl.textContent = t; }
+    function run() {
+      dirty = false;
+      chain = chain.then(function () { return stopped ? null : saveFn(); })
+        .then(function () { if (!dirty && !stopped) say('已儲存'); },
+              function () { say('尚未儲存'); toast('儲存失敗，請再試一次。'); });
+      return chain;
+    }
+    return {
+      touch: function () { if (stopped) return; dirty = true; say('編輯中…'); clearTimeout(timer); timer = setTimeout(run, 700); },
+      flush: function () { clearTimeout(timer); return dirty ? run() : chain; },
+      stop: function () { stopped = true; clearTimeout(timer); }
+    };
+  }
+  function deleteButton(onConfirm) {
+    var armed = false, t, b;
+    function reset() { armed = false; b.className = 'ib danger'; b.replaceChildren(icon('trash')); b.setAttribute('aria-label', '刪除'); }
+    b = h('button', { class: 'ib danger', type: 'button', 'aria-label': '刪除', onclick: function () {
+      if (!armed) { armed = true; b.className = 'ib danger armed'; b.replaceChildren('確定刪除？'); t = setTimeout(reset, 3000); return; }
+      clearTimeout(t); onConfirm();
+    } }, icon('trash'));
+    return b;
+  }
+
+  function openWord(id) {
+    var w = S.words.find(function (x) { return x.id === id; });
+    if (!w) return;
+    var F = {};
+    var defs = [['word', '單字', 'ja', 'big'], ['reading', '讀音（平假名）', 'ja'], ['meaning', '中文意思', 'zh-Hant'],
+                ['pos', '詞性', 'zh-Hant'], ['example', '例句', 'ja', 'ta'], ['exampleZh', '例句翻譯', 'zh-Hant', 'ta'], ['note', '我的筆記', 'zh-Hant', 'ta']];
+    var status = h('span', { class: 'status' });
+    var as = autosaver(async function () {
+      var d = {};
+      Object.keys(F).forEach(function (k) { d[k] = F[k].value.trim(); });
+      if (!d.word) { status.textContent = '單字不可空白'; return; }
+      await store.patch('words', id, d);
+    }, status);
+    var labels = defs.map(function (d) {
+      var el = d[3] === 'ta' ? h('textarea', { rows: 2, lang: d[2] }) : h('input', { type: 'text', lang: d[2], class: d[3] === 'big' ? 'big' : null, autocomplete: 'off' });
+      el.value = w[d[0]] || '';
+      el.addEventListener('input', function () { if (d[3] === 'ta') grow(el, 240); as.touch(); });
+      F[d[0]] = el;
+      return h('label', { class: 'f' }, h('span', { text: d[1] }), el);
+    });
+    var retr = h('button', { class: 'btn', type: 'button', onclick: async function () {
+      var wd = F.word.value.trim(); if (!wd) return;
+      await as.flush();
+      retr.disabled = true;
+      var res = await translateItems([{ id: id, word: wd }]);
+      retr.disabled = false;
+      var p = res[id];
+      if (p) {
+        ['word', 'reading', 'meaning', 'pos'].forEach(function (k) { if (p[k] != null && F[k]) F[k].value = p[k]; });
+        if (p.note && !F.note.value.trim()) { F.note.value = p.note; grow(F.note, 240); }
+        status.textContent = '已儲存';
+      }
+    } }, icon('refresh'), '重新翻譯');
+    var del = deleteButton(async function () {
+      as.stop();
+      try { await store.remove('words', id); sheetClose && sheetClose(); } catch (e) { toast('刪除失敗。'); }
+    });
+    showSheet('單字', [starToggle('words', id, w.starred), del], h('div', null, labels, h('div', { class: 'sheet-actions' }, retr)),
+      function () { return as.flush(); }, status);
+    labels.forEach(function (l) { var t = l.querySelector('textarea'); if (t) grow(t, 240); });
+  }
+
+  function openGrammar(id) {
+    var g = id ? S.grammar.find(function (x) { return x.id === id; }) : null;
+    var cur = { id: g ? g.id : null };
+    var cancelFn = null, worker = null, scanning = false, mode = 'edit', blocks = [];
+    // 星號按鈕：新筆記在還沒存檔（還沒有 cur.id）前先按星號，會先強制存檔一次再標記。
+    var starBtn = h('button', { class: 'ib star' + ((g && g.starred) ? ' on' : ''), type: 'button',
+      'aria-pressed': String(!!(g && g.starred)), 'aria-label': (g && g.starred) ? '取消星號' : '標記星號',
+      onclick: async function () {
+        await as.flush();
+        if (!cur.id) { toast('請先輸入文法名稱或內容，才能標記星號。'); return; }
+        var on = starBtn.getAttribute('aria-pressed') !== 'true';
+        starBtn.className = 'ib star' + (on ? ' on' : '');
+        starBtn.setAttribute('aria-pressed', String(on));
+        starBtn.setAttribute('aria-label', on ? '取消星號' : '標記星號');
+        await store.patch('grammar', cur.id, { starred: on ? 1 : 0 });
+      } }, icon('star'));
+    var status = h('span', { class: 'status' });
+    var titleIn = h('input', { class: 'g-title', type: 'text', lang: 'ja', placeholder: '文法名稱，例如「〜ておく」', autocomplete: 'off', 'aria-label': '文法名稱' });
+    var bodyIn = h('textarea', { class: 'g-body', lang: 'ja', placeholder: '在這裡輸入或貼上文法介紹，也可以用上方的「掃描圖片」自動帶入文字。表格可以用「| 欄位 | 欄位 |」的格式輸入。', 'aria-label': '文法內容' });
+    titleIn.value = g ? (g.title || '') : '';
+    bodyIn.value = g ? (g.body || '') : '';
+    var as = autosaver(async function () {
+      var title = titleIn.value.trim(), body = bodyIn.value;
+      if (!title && !body.trim()) { status.textContent = ''; return; }
+      var now = Date.now();
+      if (!cur.id) {
+        var nid = store.newId('grammar');
+        await store.create('grammar', nid, { title: title, body: body, createdAt: now, updatedAt: now });
+        cur.id = nid;
+      } else {
+        await store.patch('grammar', cur.id, { title: title, body: body, updatedAt: now });
+      }
+    }, status);
+    titleIn.addEventListener('input', as.touch);
+    titleIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); bodyIn.focus(); } });
+    bodyIn.addEventListener('input', function () { grow(bodyIn); as.touch(); });
+
+    // ----- 檢視模式：表格顯示成真正的表格，儲存格可直接修改 -----
+    var view = h('div', { class: 'gview', lang: 'ja' });
+    view.hidden = true;
+    function syncBody() { bodyIn.value = blocksToBody(blocks); as.touch(); }
+    // 特定儲存格調淡：只影響使用者自己點選的儲存格，記在這篇筆記自己的 dimCells 欄位（JSON 陣列，
+    // 例如 ["0-1-2"] 代表第 0 個表格、第 1 列、第 2 欄）。表格順序若被整段刪除／新增會跟著錯位，這是可接受的小限制。
+    var dimSet = (function () {
+      var s = new Set();
+      try { JSON.parse((g && g.dimCells) || '[]').forEach(function (k) { s.add(k); }); } catch (e) {}
+      return s;
+    })();
+    function persistDim() {
+      if (!cur.id) return;
+      store.patch('grammar', cur.id, { dimCells: JSON.stringify(Array.from(dimSet)) }).catch(function () {});
+    }
+    var pickOn = false;
+    function tableEl(b, tIdx) {
+      var wrap = h('div', { class: 'tw' });
+      function draw() {
+        wrap.replaceChildren();
+        var tb = h('tbody');
+        b.rows.forEach(function (row, r) {
+          var isHead = b.header && r === 0, tr = h('tr');
+          var titleRow = r === 0 && row.length > 1 && row[0] && row.slice(1).every(function (x) { return !x; });   // merged title bar
+          row.forEach(function (cell, c) {
+            if (titleRow && c > 0) return;
+            var key = tIdx + '-' + r + '-' + c;
+            var td = h(isHead ? 'th' : 'td', { lang: 'ja', spellcheck: 'false', colspan: titleRow ? row.length : null,
+              class: dimSet.has(key) ? 'dimcell' : null });
+            renderInlineMd(td, cell);
+            if (pickOn) {
+              td.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (dimSet.has(key)) { dimSet.delete(key); td.classList.remove('dimcell'); }
+                else { dimSet.add(key); td.classList.add('dimcell'); }
+                persistDim();
+              });
+            } else {
+              td.setAttribute('contenteditable', 'plaintext-only');
+              if (td.contentEditable !== 'plaintext-only') td.setAttribute('contenteditable', 'true');
+              // 儲存格同時是「顯示」跟「編輯」用的同一個元素：沒有在編輯時，把 **粗體** 畫成真正的粗體字比較好讀；
+              // 但點進去編輯時要換回顯示原始文字（含 ** 記號），不然每次打字都會把 ** 標記吃掉、沒辦法再打出粗體。
+              // 離開（blur）時再重新畫成粗體。只有真的有粗體格式要「還原」時才會動到內容跟游標位置（游標會跳到最後），
+              // 沒有粗體的一般格子維持原本「點哪裡游標就在哪裡」的行為，不受影響。
+              td.addEventListener('focus', function () {
+                if (!td.querySelector('strong')) return;
+                td.textContent = b.rows[r][c];
+                var rg = document.createRange(); rg.selectNodeContents(td); rg.collapse(false);
+                var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(rg);
+              });
+              td.addEventListener('blur', function () { renderInlineMd(td, b.rows[r][c]); });
+              td.addEventListener('input', function () { b.rows[r][c] = cellClean(td.textContent); syncBody(); });
+              // 一般按 Enter＝結束編輯（跟以前一樣）；Shift+Enter 才是在儲存格裡換行，換行後存檔時會自動轉成 <br> 標記，
+              // 檢視時再顯示回真正的換行（見 cellClean／parseBlocks 跟 .tbl 的 white-space:pre-line）。
+              td.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { if (e.shiftKey) return; e.preventDefault(); td.blur(); }
+              });
+              td.addEventListener('paste', function (e) {
+                e.preventDefault();
+                var t = (e.clipboardData || window.clipboardData).getData('text');
+                document.execCommand('insertText', false, String(t).replace(/\r\n?/g, '\n'));
+              });
+            }
+            tr.append(td);
+          });
+          tb.append(tr);
+        });
+        var C = b.rows[0] ? b.rows[0].length : 0;
+        wrap.append(h('div', { class: 'tscroll' }, h('table', { class: 'tbl' }, tb)));
+        if (!pickOn) {
+          wrap.append(h('div', { class: 'tacts' },
+            h('button', { class: 'btn sm', type: 'button', onclick: function () { var n = []; for (var i = 0; i < C; i++) n.push(''); b.rows.push(n); draw(); syncBody(); } }, '＋ 加一列'),
+            h('button', { class: 'btn sm', type: 'button', onclick: function () { b.rows.forEach(function (r) { r.push(''); }); draw(); syncBody(); } }, '＋ 加一欄')));
+        }
+      }
+      draw();
+      return wrap;
+    }
+    function renderView() {
+      blocks = parseBlocks(bodyIn.value);
+      view.replaceChildren();
+      if (!bodyIn.value.trim()) { view.append(h('p', { class: 'empty', text: '還沒有內容。' })); return; }
+      var tIdx = 0;
+      blocks.forEach(function (b) {
+        if (b.type === 'text') {
+          var t = b.lines.join('\n').replace(/^\n+|\n+$/g, '');
+          if (t) { var txEl = h('div', { class: 'tx' }); renderInlineMd(txEl, t); view.append(txEl); }
+        } else { view.append(tableEl(b, tIdx)); tIdx++; }
+      });
+    }
+    var segEdit = h('button', { class: 'seg-b', type: 'button', 'aria-pressed': 'true', onclick: function () { setMode('edit'); } }, '編輯');
+    var segView = h('button', { class: 'seg-b', type: 'button', 'aria-pressed': 'false', onclick: function () { setMode('view'); } }, '檢視');
+    var segHint = h('span', { class: 'hint', text: '' });
+    // 「選格子調色」：檢視模式下開啟選取，之後點哪個儲存格就只讓那一格變亮紅色（跟藍色主題撞色、好辨識）／還原，不會影響其他格子。
+    var pickBtn = h('button', { class: 'tgl', type: 'button', 'aria-pressed': 'false' }, '選格子調色');
+    pickBtn.hidden = true;
+    function updateHint() {
+      segHint.textContent = mode !== 'view' ? '' : (pickOn ? '點儲存格切換紅色標記／還原，按「完成調色」結束選取。' : '點表格的格子可直接修改文字；文字請切回「編輯」。');
+    }
+    pickBtn.addEventListener('click', function () {
+      pickOn = !pickOn;
+      pickBtn.setAttribute('aria-pressed', String(pickOn));
+      pickBtn.textContent = pickOn ? '完成調色' : '選格子調色';
+      view.classList.toggle('pick', pickOn);
+      updateHint();
+      renderView();
+    });
+    function setMode(m) {
+      mode = m;
+      segEdit.setAttribute('aria-pressed', String(m === 'edit')); segView.setAttribute('aria-pressed', String(m === 'view'));
+      bodyIn.hidden = m !== 'edit'; view.hidden = m !== 'view'; pickBtn.hidden = m !== 'view';
+      updateHint();
+      if (m === 'view') renderView(); else grow(bodyIn);
+    }
+    var segRow = h('div', { class: 'segrow' }, h('div', { class: 'seg', role: 'group', 'aria-label': '顯示方式' }, segEdit, segView), pickBtn, segHint);
+
+    // ----- 掃描圖片 -----
+    var meta = getMeta();
+    var langSel = h('select', { 'aria-label': '圖片中的語言' },
+      h('option', { value: 'jpn+chi_tra', text: '日文＋繁體中文' }),
+      h('option', { value: 'jpn', text: '只有日文' }),
+      h('option', { value: 'jpn+eng', text: '日文＋英文' }));
+    langSel.value = meta.ocrLang || 'jpn+chi_tra';
+    langSel.addEventListener('change', function () { setMeta({ ocrLang: langSel.value }); });
+    var geminiActive = meta.ocrEngine === 'gemini' && str(meta.geminiKey);
+    langSel.hidden = geminiActive;
+    var fileIn = h('input', { type: 'file', accept: 'image/*', multiple: true, hidden: true });
+    var scanBtn = h('button', { class: 'btn', type: 'button', onclick: function () { fileIn.click(); } }, icon('camera'), '掃描圖片');
+    var stopBtn = h('button', { class: 'btn', type: 'button', onclick: function () { if (cancelFn) cancelFn(); } }, icon('stop'), '停止');
+    stopBtn.hidden = true;
+    var IDLE = (geminiActive ? '目前用 Gemini 辨識（照片會送到 Google）。' : '') +
+               '選照片或截圖，文字和表格會自動貼進來。拍照時請正對、光線均勻、字盡量填滿畫面。';
+    var scanNote = h('span', { class: 'hint', text: IDLE });
+    var scanBar = h('div', { class: 'scanbar' }, scanBtn, stopBtn, langSel, scanNote, fileIn);
+
+    function setBusy(b, msg) {
+      scanBtn.hidden = b; stopBtn.hidden = !b; langSel.hidden = b || geminiActive;
+      scanNote.textContent = b ? (msg || '處理中…') : IDLE;
+    }
+    async function runScan(files) {
+      if (scanning) return;
+      scanning = true;
+      var hadTitle = !!titleIn.value.trim(), base = bodyIn.value.trim(), sep = base ? '\n\n' : '';
+      var chunks = [], confs = [], nTables = 0, cancelled = false, prefix = '', stage = '', showPct = false, i;
+      var cancelP = new Promise(function (_, rej) { cancelFn = function () { cancelled = true; rej({ code: 'cancelled' }); }; });
+      cancelP.catch(function () {});
+      function chk() { if (cancelled) throw { code: 'cancelled' }; }
+      function say(t) { if (scanning) scanNote.textContent = t; }
+      function pct(m) { return typeof m.progress === 'number' ? ' ' + Math.round(m.progress * 100) + '%' : ''; }
+      function apply() {
+        var text = chunks.join('\n\n');
+        bodyIn.value = base + (text ? sep + text : ''); grow(bodyIn);
+        if (mode === 'view') renderView();
+      }
+      var gm = getMeta(), useGemini = gm.ocrEngine === 'gemini' && str(gm.geminiKey);
+      setBusy(true, useGemini ? '傳送到 Gemini 辨識中…' : '準備辨識引擎…');
+      try {
+        if (!useGemini) {
+          if (!window.Tesseract) await Promise.race([loadScript(CDN.tesseract), cancelP]);
+          worker = await Promise.race([window.Tesseract.createWorker(langSel.value, 1, {
+            logger: function (m) {
+              var st = (m && m.status) || '';
+              if (/language|loading/.test(st)) say('下載辨識資料' + pct(m) + '（第一次較久）');
+              else if (showPct && /recogniz/.test(st)) say(stage + pct(m));
+            }
+          }), cancelP]);
+        }
+        for (i = 0; i < files.length; i++) {
+          prefix = files.length > 1 ? '第 ' + (i + 1) + '/' + files.length + ' 張：' : '';
+          say(prefix + (useGemini ? '傳送到 Gemini 辨識中…' : '整理圖片'));
+          var res = useGemini
+            ? await Promise.race([geminiScan(files[i], gm.geminiKey, gm.geminiModel || GEMINI_DEFAULT_MODEL, function (t) { say(prefix + t); }), cancelP])
+            : await Promise.race([scanImage(files[i], worker, { tables: getMeta().ocrTables !== false }, function (t, withPct) {
+                stage = prefix + t; showPct = !!withPct; say(stage);
+              }, chk), cancelP]);
+          chk();
+          if (res.text) {
+            chunks.push(res.text); confs.push(res.conf); nTables += res.tables;
+            if (!hadTitle && chunks.length === 1 && res.title) titleIn.value = res.title;
+          }
+          apply();
+        }
+        if (!chunks.length) toast('沒有辨識到文字，請換一張更清楚、光線均勻的照片。', 6000);
+        else if (!cancelled) {
+          var known = confs.filter(function (c) { return typeof c === 'number'; });
+          var avg = known.length ? Math.round(known.reduce(function (a, b) { return a + b; }, 0) / known.length) : null;
+          toast('辨識完成' + (avg != null ? '（信心約 ' + avg + '%）' : '（由 Gemini 辨識）') +
+                (nTables ? '，偵測到 ' + nTables + ' 個表格' : '') + '。請檢查有沒有錯字。' +
+                (avg != null && avg < 65 ? '照片品質偏低，建議在光線均勻處正對重拍。' : ''), 7000);
+          if (nTables) setMode('view');
+        }
+        as.touch();
+      } catch (e) {
+        if (chunks.length) { apply(); as.touch(); }
+        if (!e || e.code !== 'cancelled') {
+          toast(useGemini ? ((e && e.message) || 'Gemini 辨識失敗，請檢查網路或 API Key 後再試一次。')
+                           : '辨識失敗：可能沒有網路，或圖片太大。請檢查網路後再試一次。', 7000);
+        }
+      } finally {
+        scanning = false; cancelFn = null;
+        var wk = worker; worker = null;
+        if (wk) { try { wk.terminate(); } catch (e3) {} }
+        setBusy(false);
+      }
+    }
+    fileIn.addEventListener('change', function () {
+      var files = Array.prototype.slice.call(fileIn.files || []);
+      fileIn.value = '';
+      if (files.length) runScan(files);
+    });
+
+    var del = cur.id ? deleteButton(async function () {
+      as.stop(); if (cancelFn) cancelFn();
+      try { await store.remove('grammar', cur.id); sheetClose && sheetClose(); } catch (e) { toast('刪除失敗。'); }
+    }) : null;
+    showSheet(cur.id ? '文法筆記' : '新增文法', [starBtn, del], h('div', null, titleIn, scanBar, segRow, bodyIn, view),
+      async function () { if (cancelFn) cancelFn(); await as.flush(); }, status);
+    grow(bodyIn);
+    if (!cur.id) titleIn.focus();
+    else if (parseBlocks(bodyIn.value).some(function (b) { return b.type === 'table'; })) setMode('view');
+  }
+
+  // ---------- backup & settings ----------
+  function two(n) { return String(n).length < 2 ? '0' + n : String(n); }
+  // iPhone「加入主畫面」開啟的 App 沒有 Safari 的下載列，<a download> 常常「看起來成功」其實檔案沒地方去。
+  // 有分享清單就優先用它：跳出 iOS 原生分享視窗，使用者自己選「儲存到「檔案」」「AirDrop」「郵件」等，一定看得到檔案去了哪。
+  async function exportBackup() {
+    var d = store.dump(), now = new Date();
+    var payload = { app: 'nihongo-techo', version: 1, exportedAt: now.toISOString(), words: d.words, grammar: d.grammar };
+    var name = 'nihongo-techo-' + now.getFullYear() + two(now.getMonth() + 1) + two(now.getDate()) + '.json';
+    var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    var file = null;
+    try { file = new File([blob], name, { type: 'application/json' }); } catch (e) {}
+    if (file && navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      try {
+        await navigator.share({ files: [file], title: name });
+        setMeta({ lastBackup: Date.now() });
+        updateNotice();
+        toast('備份已送出，記得選「儲存到「檔案」」才會留在手機裡。', 6000);
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;   // 使用者自己取消分享視窗，不用當成失敗
+      }
+    }
+    var a = h('a', { href: URL.createObjectURL(blob), download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    setMeta({ lastBackup: Date.now() });
+    toast('已匯出備份檔。如果在「檔案」App 的下載裡找不到，請改用瀏覽器（不是主畫面圖示）開啟這個網址再匯出一次。', 8000);
+    updateNotice();
+  }
+  function importBackup(file) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      try {
+        var d = JSON.parse(String(fr.result));
+        if (!d || (!Array.isArray(d.words) && !Array.isArray(d.grammar))) throw new Error('bad');
+        var n = store.merge(d);
+        toast('已匯入 ' + n.words + ' 個單字、' + n.grammar + ' 則文法。', 6000);
+      } catch (e) { toast('這個檔案不是有效的備份檔。', 6000); }
+    };
+    fr.onerror = function () { toast('讀取檔案失敗。'); };
+    fr.readAsText(file);
+  }
+  function openMenu() {
+    var meta = getMeta();
+    var fileIn = h('input', { type: 'file', accept: '.json,application/json', hidden: true });
+    fileIn.addEventListener('change', function () { var f = fileIn.files && fileIn.files[0]; fileIn.value = ''; if (f) importBackup(f); });
+    var chk = h('input', { type: 'checkbox', id: 'autoRead' });
+    chk.checked = meta.autoReading !== false;
+    chk.addEventListener('change', function () { setMeta({ autoReading: chk.checked }); });
+    var chk2 = h('input', { type: 'checkbox', id: 'autoTables' });
+    chk2.checked = meta.ocrTables !== false;
+    chk2.addEventListener('change', function () { setMeta({ ocrTables: chk2.checked }); });
+    var last = meta.lastBackup ? '上次備份：' + new Date(meta.lastBackup).toLocaleString('zh-TW', { hour12: false }) : '尚未備份過。';
+
+    // ----- Gemini 辨識（選用） -----
+    var chk3 = h('input', { type: 'checkbox', id: 'useGemini' });
+    chk3.checked = meta.ocrEngine === 'gemini';
+    var keyIn = h('input', { type: 'password', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: '貼上你的 Gemini API Key' });
+    keyIn.value = meta.geminiKey || '';
+    var showBtn = h('button', { class: 'btn sm', type: 'button' }, '顯示');
+    showBtn.addEventListener('click', function () {
+      var show = keyIn.type === 'password';
+      keyIn.type = show ? 'text' : 'password';
+      showBtn.textContent = show ? '隱藏' : '顯示';
+    });
+    function saveKey() { setMeta({ geminiKey: keyIn.value.trim() }); }
+    keyIn.addEventListener('change', saveKey); keyIn.addEventListener('blur', saveKey);
+    var modelIn = h('input', { type: 'text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: GEMINI_DEFAULT_MODEL });
+    modelIn.value = meta.geminiModel || '';
+    function saveModel() { setMeta({ geminiModel: modelIn.value.trim() }); }
+    modelIn.addEventListener('change', saveModel); modelIn.addEventListener('blur', saveModel);
+    var geminiBox = h('div', { style: 'margin-top:12px' },
+      h('label', { class: 'f' }, h('span', { text: 'Gemini API Key' }),
+        h('div', { style: 'display:flex;gap:8px;align-items:center' }, keyIn, showBtn)),
+      h('label', { class: 'f', style: 'margin-top:10px' }, h('span', { text: '模型名稱（不確定就留預設）' }), modelIn),
+      h('p', { class: 'small' },
+        '到 ', h('a', { href: 'https://aistudio.google.com/apikey', target: '_blank', rel: 'noopener', text: 'Google AI Studio' }),
+        ' 用 Google 帳號免費申請一組 Key。開啟後，掃描圖片會把照片直接從這支手機傳到 Google 的 Gemini API（不會經過我們），通常比手機內建辨識準，但需要網路，也可能受 Google 免費額度限制而暫時失敗。這組 Key 只存在這個瀏覽器裡，不會包含在備份檔案中，換手機要重新輸入一次。'));
+    geminiBox.hidden = !chk3.checked;
+    chk3.addEventListener('change', function () { setMeta({ ocrEngine: chk3.checked ? 'gemini' : '' }); geminiBox.hidden = !chk3.checked; });
+
+    // ----- 雲端同步（選用） -----
+    var cloudSec = h('div', { class: 'sec' });
+    var cloudSigned = false;
+    function renderCloud(st) {
+      cloudSigned = st.signedIn;
+      cloudSec.replaceChildren(h('h2', { text: '雲端同步' }));
+      if (!st.configured) {
+        var cfgIn = h('textarea', { rows: 6, placeholder: '貼上 Firebase 專案的設定內容（firebaseConfig = { ... }）' });
+        var cfgErr = h('p', { class: 'small', style: 'color:var(--danger)' });
+        var saveCfgBtn = h('button', { class: 'btn primary block', type: 'button' }, '儲存設定並連線');
+        saveCfgBtn.addEventListener('click', async function () {
+          saveCfgBtn.disabled = true; cfgErr.textContent = '';
+          try { await cloud.setConfig(cfgIn.value); toast('已連線到你的雲端專案，接下來可以註冊或登入帳號。'); }
+          catch (e) { cfgErr.textContent = e && e.message || String(e); }
+          saveCfgBtn.disabled = false;
+        });
+        cloudSec.append(
+          h('p', { class: 'small' }, '想在多台裝置間同步，或讓不同人各自用自己的帳號、各自保存各自的資料，可以設定雲端同步。先到 ',
+            h('a', { href: 'https://console.firebase.google.com/', target: '_blank', rel: 'noopener', text: 'Firebase 主控台' }),
+            ' 免費建立一個專案（詳細步驟可以隨時問我），把專案的設定內容整段貼在下面。'),
+          h('label', { class: 'f' }, h('span', { text: 'Firebase 設定內容' }), cfgIn),
+          saveCfgBtn, cfgErr);
+        return;
+      }
+      if (!st.signedIn) {
+        var mailIn = h('input', { type: 'email', autocomplete: 'email', autocapitalize: 'off', spellcheck: 'false', placeholder: 'you@example.com' });
+        var pwIn = h('input', { type: 'password', autocomplete: 'current-password', placeholder: '密碼（至少 6 個字元）' });
+        var authErr = h('p', { class: 'small', style: 'color:var(--danger)' });
+        var signInBtn = h('button', { class: 'btn primary', type: 'button', style: 'flex:1' }, '登入');
+        var signUpBtn = h('button', { class: 'btn', type: 'button', style: 'flex:1' }, '註冊新帳號');
+        function busy(b) { signInBtn.disabled = b; signUpBtn.disabled = b; }
+        function run(fn) {
+          return async function () {
+            var mail = mailIn.value.trim(), pw = pwIn.value;
+            authErr.textContent = ''; busy(true);
+            try { await fn(mail, pw); toast('已登入，開始同步資料。'); }
+            catch (e) { authErr.textContent = cloudAuthErr(e); }
+            busy(false);
+          };
+        }
+        signInBtn.addEventListener('click', run(cloud.signIn));
+        signUpBtn.addEventListener('click', run(cloud.signUp));
+        var disconnectBtn = h('button', { class: 'btn sm', type: 'button' }, '清除雲端設定');
+        disconnectBtn.addEventListener('click', function () { cloud.clearConfig(); toast('已清除雲端設定，資料只留在這台裝置。'); });
+        cloudSec.append(
+          h('p', { class: 'small', text: '已連線到你的雲端專案，尚未登入帳號；登入或註冊後，這台裝置現有的資料就會開始同步上去。' }),
+          h('label', { class: 'f' }, h('span', { text: 'Email' }), mailIn),
+          h('label', { class: 'f' }, h('span', { text: '密碼' }), pwIn),
+          authErr,
+          h('div', { style: 'display:flex;gap:8px' }, signInBtn, signUpBtn),
+          h('p', { class: 'small', style: 'margin-top:10px' }, '每個 Email 帳號各自保存各自的資料，彼此看不到對方的內容。'), disconnectBtn);
+        return;
+      }
+      var signOutBtn = h('button', { class: 'btn block', type: 'button' }, '登出');
+      signOutBtn.addEventListener('click', function () { cloud.signOut(); toast('已登出，暫停同步（本機資料仍會保留）。'); });
+      var disconnectBtn2 = h('button', { class: 'btn sm', type: 'button', style: 'margin-top:8px' }, '清除雲端設定');
+      disconnectBtn2.addEventListener('click', function () { cloud.clearConfig(); toast('已清除雲端設定。'); });
+      cloudSec.append(
+        h('p', { style: 'color:var(--accent);font-weight:600', text: (st.syncing ? '同步中… ' : '已連線同步：') + st.email }),
+        h('p', { class: 'small', text: '這台裝置的單字與文法會自動跟這個帳號的雲端資料同步；用同一個帳號登入其他裝置，也會看到同一份資料、即時更新。' }),
+        signOutBtn, disconnectBtn2);
+    }
+    var cloudUnsub = cloud.onState(renderCloud);
+
+    var body = h('div', null,
+      h('div', { class: 'sec' }, h('h2', { text: '資料' }),
+        h('p', { text: store.isPersistent()
+          ? '你的資料存在這支手機的瀏覽器裡（' + S.words.length + ' 個單字、' + S.grammar.length + ' 則文法），不會上傳到任何地方。'
+          : '這個瀏覽器目前無法保存資料，關閉頁面後內容會消失。請改用 Chrome 直接開啟檔案，並隨時匯出備份。' }),
+        h('p', { class: 'small', text: '換手機、清除瀏覽器資料或解除安裝瀏覽器，資料都會消失。請定期匯出備份。' })),
+      h('div', { class: 'sec' }, h('h2', { text: '備份' }),
+        h('button', { class: 'btn primary block', type: 'button', onclick: exportBackup }, icon('download'), '匯出備份檔'),
+        h('button', { class: 'btn block', type: 'button', onclick: function () { fileIn.click(); } }, icon('upload'), '匯入備份檔'),
+        h('p', { class: 'small', text: last + ' 匯入時，相同的項目會被備份內容覆蓋，其他資料不受影響。' }), fileIn),
+      cloudSec,
+      h('div', { class: 'sec' }, h('h2', { text: '設定' }),
+        h('label', { class: 'chk', for: 'autoRead' }, chk, h('span', { text: '新增單字時自動加讀音（第一次需下載約 12MB 的字典）' })),
+        h('label', { class: 'chk', for: 'autoTables', style: 'margin-top:12px' }, chk2, h('span', { text: '掃描圖片時自動偵測表格，並輸出成表格（未使用 Gemini 時才需要）' })),
+        h('label', { class: 'chk', for: 'useGemini', style: 'margin-top:12px' }, chk3, h('span', { text: '掃描圖片時改用 Gemini 辨識（更準，需要你自己的免費 API Key）' })),
+        geminiBox),
+      h('div', { class: 'sec' }, h('h2', { text: '隱私' }),
+        h('p', { class: 'small', text: '翻譯時，你輸入的單字文字會傳到 Google 翻譯的免費接口。' +
+          (chk3.checked ? '你目前開啟了 Gemini 辨識：掃描圖片時，照片會直接從這支手機傳到 Google 的 Gemini API。'
+                        : '圖片辨識在手機上進行，照片不會上傳，只會下載一次辨識用的語言資料。') +
+          (cloudSigned ? '你目前開啟了雲端同步：單字與文法的內容會存到你自己的 Firebase 專案裡，只有登入同一個帳號才能看到。' : '') })));
+    showSheet('備份與設定', null, body, function () { cloudUnsub(); }, h('span'));
+  }
+
+  // ---------- wiring ----------
+  function setTab(t) {
+    S.tab = t;
+    $('view-words').hidden = t !== 'words';
+    $('view-grammar').hidden = t !== 'grammar';
+    $('fab').hidden = t !== 'grammar';
+    $('tab-words').setAttribute('aria-selected', String(t === 'words'));
+    $('tab-grammar').setAttribute('aria-selected', String(t === 'grammar'));
+    window.scrollTo(0, 0);
+  }
+
+  document.querySelectorAll('[data-icon]').forEach(function (el) { el.replaceWith(icon(el.getAttribute('data-icon'))); });
+  $('tab-words').addEventListener('click', function () { setTab('words'); });
+  $('tab-grammar').addEventListener('click', function () { setTab('grammar'); });
+  $('fab').addEventListener('click', function () { openGrammar(null); });
+  $('menuBtn').addEventListener('click', openMenu);
+  $('noticeBtn').addEventListener('click', function () { if (noticeAction) noticeAction(); });
+  $('addBtn').addEventListener('click', addWords);
+  $('wordsIn').addEventListener('input', function () { grow($('wordsIn'), 220); });
+  $('wordsIn').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); addWords(); } });
+  $('qWords').addEventListener('input', function (e) { S.q.words = e.target.value; renderWords(); });
+  $('qGrammar').addEventListener('input', function (e) { S.q.grammar = e.target.value; renderGrammar(); });
+  $('wStarFilter').addEventListener('click', function () {
+    S.starOnly.words = !S.starOnly.words;
+    $('wStarFilter').setAttribute('aria-pressed', String(S.starOnly.words));
+    renderWords();
+  });
+  $('gStarFilter').addEventListener('click', function () {
+    S.starOnly.grammar = !S.starOnly.grammar;
+    $('gStarFilter').setAttribute('aria-pressed', String(S.starOnly.grammar));
+    renderGrammar();
+  });
+  // 排序模式：開啟時清掉搜尋／星號篩選（拖拉排序只在完整列表上做，避免跟篩選出來的子集合搞混），
+  // 搜尋框跟星號篩選鈕也一併停用。
+  $('gReorderBtn').addEventListener('click', function () {
+    S.reorderGrammar = !S.reorderGrammar;
+    var btn = $('gReorderBtn');
+    btn.setAttribute('aria-pressed', String(S.reorderGrammar));
+    btn.lastChild.textContent = S.reorderGrammar ? '完成排序' : '排序';
+    $('qGrammar').value = ''; S.q.grammar = '';
+    $('qGrammar').disabled = S.reorderGrammar;
+    $('gStarFilter').disabled = S.reorderGrammar;
+    renderGrammar();
+  });
+  // 拖拉排序：用 Pointer Events（觸控／滑鼠通用），按住把手上下拖動時，比較手指 Y 座標跟其他列的中點，
+  // 超過哪一列的中點就把正在拖的那一列插到它前面；放開後把目前畫面上的順序寫回每個筆記的 order 欄位。
+  (function () {
+    var gList = $('gList');
+    var dragEl = null, pid = null;
+    function onMove(e) {
+      if (!dragEl) return;
+      e.preventDefault();
+      var y = e.clientY;
+      var items = Array.prototype.slice.call(gList.children).filter(function (x) { return x !== dragEl; });
+      var placed = false;
+      for (var i = 0; i < items.length; i++) {
+        var r = items[i].getBoundingClientRect();
+        var mid = r.top + r.height / 2;
+        if (y < mid) {
+          if (items[i].previousSibling !== dragEl) gList.insertBefore(dragEl, items[i]);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed && gList.lastElementChild !== dragEl) gList.appendChild(dragEl);
+    }
+    function onUp() {
+      if (!dragEl) return;
+      dragEl.classList.remove('dragging');
+      var ids = Array.prototype.slice.call(gList.children).map(function (li) { return li.getAttribute('data-id'); });
+      dragEl = null; pid = null;
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onUp);
+      ids.forEach(function (id, idx) {
+        if (!id) return;
+        var g = S.grammar.find(function (x) { return x.id === id; });
+        if (g && g.order !== idx) { g.order = idx; store.patch('grammar', id, { order: idx }).catch(function () {}); }
+      });
+    }
+    gList.addEventListener('pointerdown', function (e) {
+      var handle = e.target.closest ? e.target.closest('.drag-handle') : null;
+      if (!handle) return;
+      var li = handle.closest('li');
+      if (!li) return;
+      e.preventDefault();
+      dragEl = li; pid = e.pointerId;
+      dragEl.classList.add('dragging');
+      try { handle.setPointerCapture(pid); } catch (e2) {}
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+      document.addEventListener('pointercancel', onUp);
+    });
+  })();
+  $('pendingBtn').addEventListener('click', function () {
+    var pend = S.words.filter(function (w) { return !str(w.meaning) && !S.busy.has(w.id); }).slice(0, 20)
+      .map(function (w) { return { id: w.id, word: w.word }; });
+    if (pend.length) translateItems(pend);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetClose) sheetClose(); });
+
+  store.watch('words', 'createdAt', function (rows) { S.words = rows; S.loaded.words = true; renderWords(); });
+  store.watch('grammar', 'updatedAt', function (rows) { S.grammar = rows; S.loaded.grammar = true; renderGrammar(); });
+})();
+</script>
+</body>
+</html>
