@@ -50,6 +50,8 @@ button{cursor:pointer}
 .top p{margin:2px 0 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .notice{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;padding:10px 10px 10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:13px;line-height:1.5}
 .notice .btn{background:transparent;border-color:currentColor;color:inherit}
+.notice-a{display:flex;align-items:center;gap:2px;flex:none}
+.notice .notice-x{color:inherit;min-width:40px;min-height:40px;padding:0}
 
 .compose{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .lbl{display:block;font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
@@ -217,7 +219,7 @@ button{cursor:pointer}
 <body>
 
 <div class="app">
-  <div id="notice" class="notice" hidden><span id="noticeTxt"></span><button id="noticeBtn" class="btn sm" type="button" hidden></button></div>
+  <div id="notice" class="notice" hidden><span id="noticeTxt"></span><span class="notice-a"><button id="noticeBtn" class="btn sm" type="button" hidden></button><button id="noticeX" class="ib notice-x" type="button" aria-label="關閉提示，不再顯示" hidden><span data-icon="close"></span></button></span></div>
   <header class="top">
     <div>
       <h1><span lang="ja">日語手帳</span><small>V2</small></h1>
@@ -331,7 +333,8 @@ button{cursor:pointer}
     upload: '<path d="M12 16V5M7 9l5-5 5 5M5 20h14"/>',
     star: '<path d="M12 3.5l2.6 5.6 6.1.8-4.5 4.3 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.3 6.1-.8z"/>',
     grip: '<path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/>',
-    sort: '<path d="M7 15l5 5 5-5M7 9l5-5 5 5"/>'
+    sort: '<path d="M7 15l5 5 5-5M7 9l5-5 5 5"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>'
   };
   function icon(name) {
     var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -997,19 +1000,25 @@ button{cursor:pointer}
   var cloud = makeCloudSync(store);
 
   // ---------- notice banner ----------
-  var noticeAction = null;
-  function showNotice(text, label, fn) {
+  var noticeAction = null, noticeClose = null;
+  function showNotice(text, label, fn, onClose) {
     $('notice').hidden = false; $('noticeTxt').textContent = text;
     var b = $('noticeBtn'); b.hidden = !label; b.textContent = label || ''; noticeAction = fn || null;
+    $('noticeX').hidden = !onClose; noticeClose = onClose || null;
   }
   function updateNotice() {
     if (!store.isPersistent()) {
       showNotice('這個瀏覽器無法保存資料，關閉頁面後內容會消失。請改用 Chrome 直接開啟檔案，或隨時按「備份」匯出。');
       return;
     }
-    var n = S.words.length + S.grammar.length, last = getMeta().lastBackup || 0;
-    if (n >= 15 && Date.now() - last > 14 * 864e5) {
-      showNotice('已經存了 ' + n + ' 筆資料，建議備份一份，換手機或清除瀏覽器資料時才不會遺失。', '備份', openMenu);
+    // 「建議備份」提示：可以按 ✕ 永久關掉；有登入雲端同步時也不顯示（雲端本身就是備份）。
+    // 上面「這個瀏覽器無法保存資料」那種嚴重警告不能關。
+    var meta = getMeta(), n = S.words.length + S.grammar.length, last = meta.lastBackup || 0;
+    var cloudOn = false;
+    try { cloudOn = typeof cloud !== 'undefined' && cloud && cloud.state().signedIn; } catch (e) {}
+    if (!meta.backupNoticeOff && !cloudOn && n >= 15 && Date.now() - last > 14 * 864e5) {
+      showNotice('已經存了 ' + n + ' 筆資料，建議備份一份，換手機或清除瀏覽器資料時才不會遺失。', '備份', openMenu,
+        function () { setMeta({ backupNoticeOff: true }); updateNotice(); toast('之後不會再顯示備份提示，需要時可以從右上角「備份」匯出。'); });
     } else $('notice').hidden = true;
   }
 
@@ -2850,6 +2859,8 @@ button{cursor:pointer}
   $('fab').addEventListener('click', function () { openGrammar(null); });
   $('menuBtn').addEventListener('click', openMenu);
   $('noticeBtn').addEventListener('click', function () { if (noticeAction) noticeAction(); });
+  $('noticeX').addEventListener('click', function () { if (noticeClose) noticeClose(); });
+  cloud.onState(function () { updateNotice(); });
   $('addBtn').addEventListener('click', addWords);
   $('wordsIn').addEventListener('input', function () { grow($('wordsIn'), 220); });
   $('wordsIn').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); addWords(); } });
