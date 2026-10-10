@@ -729,6 +729,7 @@ button{cursor:pointer}
     var text = await geminiGenerate(key, meta.geminiModel || GEMINI_DEFAULT_MODEL, prompt, say);
     var qs = normalizeQuestions(parseQuizJson(text), tg.slots, kind);
     if (!qs.length) throw new Error('AI 這次產生的題目格式都不完整，請再按一次出題。');
+    qs.forEach(function (q, i) { q.no = i + 1; });   // 原本的題號；練完只留錯題後，複習畫面仍顯示原題號
     return qs;
   }
 
@@ -2654,6 +2655,28 @@ button{cursor:pointer}
     else note.textContent = '從 ' + n + ' 則筆記裡隨機抽' + (n < QUIZ_N ? '（筆記不到 10 則，會從同一則出不同考點）' : ' 10 則') + '，交給 Gemini 出 10 題（會把筆記內容送到 Google）。';
     btn.textContent = p.kind === 'words' ? '隨機抽 ' + Math.min(QUIZ_N, n || QUIZ_N) + ' 個，開始出題' : '隨機抽題，開始出題';
   }
+  // 省空間：一次練習完整存下來約 10 KB，手機瀏覽器的儲存空間（約 5 MB）是跟單字／文法共用的，
+  // 長期全部保留會塞滿，連新增單字都會存檔失敗。所以①練完那一刻只留答錯的題目（分數等摘要照留）；
+  // ②紀錄最多保留最近 QUIZ_KEEP 次，更舊的自動刪掉。練到一半的紀錄會保留全部題目，才能繼續作答。
+  var QUIZ_KEEP = 200;
+  function trimmedPatch(items, total) {
+    var answered = items.filter(function (q) { return q.picked >= 0; }).length;
+    var correct = items.filter(function (q) { return q.picked >= 0 && q.picked === q.answer; }).length;
+    var done = answered >= total;
+    var keep = done ? items.filter(function (q) { return q.picked !== q.answer; }) : items;
+    var d = { items: JSON.stringify(keep), answered: answered, correct: correct };
+    if (done) d.trimmed = 1;
+    return d;
+  }
+  function pruneQuiz() {
+    // 紀錄做完但還沒清過答對題（例如從舊備份匯入的）→ 清掉；超過上限 → 刪最舊的。
+    S.quiz.forEach(function (r) {
+      if (r.trimmed || (r.answered || 0) < (r.total || 0)) return;
+      store.patch('quiz', r.id, trimmedPatch(qzItems(r), r.total || 0)).catch(function () {});
+    });
+    var rows = S.quiz.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    rows.slice(QUIZ_KEEP).forEach(function (r) { store.remove('quiz', r.id).catch(function () {}); });
+  }
   function qzItems(rec) { try { var a = JSON.parse(rec.items || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
   function fmtDateTime(ms) {
     if (!ms) return '';
@@ -2685,6 +2708,7 @@ button{cursor:pointer}
       var id = store.newId('quiz'), now = Date.now();
       await store.create('quiz', id, { kind: p.kind, qtype: p.qtype, scope: p.scope, total: qs.length, answered: 0, correct: 0,
         items: JSON.stringify(qs), createdAt: now, updatedAt: now });
+      pruneQuiz();
       QZ.busy = false; renderQuizSetup();
       if (qs.length < QUIZ_N && p.kind === 'grammar') toast('AI 這次只產生了 ' + qs.length + ' 題可用的題目。');
       runQuiz(id);
@@ -2709,10 +2733,10 @@ button{cursor:pointer}
     if (idx < 0) { openQuizRecord(id); return; }
     var wrap = h('div');
     var autoStar = getMeta().quizAutoStar !== false;
+    var total = rec.total || items.length;
     function save() {
-      var answered = items.filter(function (q) { return q.picked >= 0; }).length;
-      var correct = items.filter(function (q) { return q.picked >= 0 && q.picked === q.answer; }).length;
-      return store.patch('quiz', id, { items: JSON.stringify(items), answered: answered, correct: correct, updatedAt: Date.now() }).catch(function () {});
+      var d = trimmedPatch(items, total); d.updatedAt = Date.now();
+      return store.patch('quiz', id, d).catch(function () {});
     }
     function show() {
       var q = items[idx];
@@ -2763,7 +2787,7 @@ button{cursor:pointer}
         h('div', { class: 'bigscore' }, h('b', { text: correct + ' / ' + items.length }),
           h('span', { text: correct === items.length ? '全對，太厲害了！' : wrong.length + ' 題答錯' + (autoStar ? '，已經幫你把出處加上星號，之後可以選「只抽星號」重練。' : '。') })),
         h('div', { class: 'sheet-actions', style: 'flex-direction:column' },
-          h('button', { class: 'btn primary block', type: 'button', onclick: function () { openQuizRecord(id); } }, '看每一題的解說'),
+          wrong.length ? h('button', { class: 'btn primary block', type: 'button', onclick: function () { openQuizRecord(id); } }, '複習錯題（紀錄只保留錯題）') : null,
           h('button', { class: 'btn block', type: 'button', onclick: function () {
             var o = { quizKind: rec.kind, quizScope: rec.scope }; o['quizType_' + rec.kind] = rec.qtype; setMeta(o);
             sheetClose && sheetClose(); renderQuizSetup(); setTimeout(startQuiz, 0);
@@ -2776,15 +2800,20 @@ button{cursor:pointer}
   function openQuizRecord(id) {
     var rec = S.quiz.find(function (x) { return x.id === id; });
     if (!rec) return;
-    var items = qzItems(rec), done = (rec.answered || 0) >= items.length;
+    var items = qzItems(rec), total = rec.total || items.length, done = (rec.answered || 0) >= total;
+    var trimNote = null;
+    if (rec.trimmed) trimNote = h('p', { class: 'qnote', style: 'margin:0 0 6px;text-align:center', text: items.length
+      ? '答對的 ' + (total - items.length) + ' 題已自動清除，下面只保留答錯的 ' + items.length + ' 題。'
+      : '全部答對！答對的題目會自動清除，這次沒有需要複習的錯題。' });
     var body = h('div', null,
-      h('div', { class: 'bigscore' }, h('b', { text: (rec.correct || 0) + ' / ' + items.length }),
-        h('span', { text: fmtDateTime(rec.createdAt) + '・' + scopeName(rec.scope) + (done ? '' : '・還有 ' + (items.length - (rec.answered || 0)) + ' 題沒答') })),
+      h('div', { class: 'bigscore' }, h('b', { text: (rec.correct || 0) + ' / ' + total }),
+        h('span', { text: fmtDateTime(rec.createdAt) + '・' + scopeName(rec.scope) + (done ? '' : '・還有 ' + (total - (rec.answered || 0)) + ' 題沒答') })),
+      trimNote,
       done ? null : h('button', { class: 'btn primary block', type: 'button', style: 'margin-bottom:14px', onclick: function () { runQuiz(id); } }, '繼續作答'),
       items.map(function (q, n) {
         var answered = q.picked >= 0;
         return h('div', { class: 'rv' },
-          h('div', { class: 'qtype', text: (n + 1) + '．' + (q.type || quizTypeName(rec.kind, rec.qtype)) + (answered ? (q.picked === q.answer ? '・答對' : '・答錯') : '・未作答') }),
+          h('div', { class: 'qtype', text: (q.no || n + 1) + '．' + (q.type || quizTypeName(rec.kind, rec.qtype)) + (answered ? (q.picked === q.answer ? '・答對' : '・答錯') : '・未作答') }),
           h('p', { class: 'qq', lang: 'ja', text: q.question }),
           h('div', { class: 'opts' }, q.options.map(function (_, i) {
             var cls = !answered ? '' : i === q.answer ? 'ok' : i === q.picked ? 'bad' : 'dimmed';
@@ -2907,7 +2936,10 @@ button{cursor:pointer}
 
   store.watch('words', 'createdAt', function (rows) { S.words = rows; S.loaded.words = true; renderWords(); renderQuizSetup(); });
   store.watch('grammar', 'updatedAt', function (rows) { S.grammar = rows; S.loaded.grammar = true; renderGrammar(); renderQuizSetup(); });
-  store.watch('quiz', 'createdAt', function (rows) { S.quiz = rows; S.loaded.quiz = true; renderQuizList(); });
+  store.watch('quiz', 'createdAt', function (rows) {
+    S.quiz = rows; S.loaded.quiz = true; renderQuizList();
+    if (rows.some(function (r) { return !r.trimmed && (r.answered || 0) >= (r.total || 0) && (r.total || 0) > 0; }) || rows.length > QUIZ_KEEP) setTimeout(pruneQuiz, 0);
+  });
 })();
 </script>
 </body>
