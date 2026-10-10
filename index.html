@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#2B4A94">
+<title>日語手帳 V2</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="日語手帳">
+<meta name="apple-mobile-web-app-title" content="日語手帳V2">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
@@ -18,6 +19,7 @@
   --bg:#F2F4F8; --surface:#FFFFFF; --ink:#18213A; --muted:#5B6782; --line:#DCE1EB;
   --accent:#2B4A94; --accent-ink:#FFFFFF; --accent-soft:#E3E9F7;
   --warn:#8A5200; --warn-soft:#FFF0D2; --danger:#B3261E; --dim-red:#CC1B1B;
+  --ok:#1E7A46; --ok-soft:#E1F3E8; --bad-soft:#FBE4E2;
   --f-zh:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
   --f-ja:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
   --f-min:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
@@ -28,6 +30,7 @@
     --bg:#0F131C; --surface:#171D2A; --ink:#E9EDF6; --muted:#9AA6C0; --line:#28314A;
     --accent:#8FAAF0; --accent-ink:#0F1730; --accent-soft:#1F2A47;
     --warn:#F2C572; --warn-soft:#3A2E14; --danger:#F2867F; --dim-red:#FF6B6B;
+    --ok:#6FD39A; --ok-soft:#17321F; --bad-soft:#3A1A18;
   }
 }
 [hidden]{display:none!important}
@@ -93,7 +96,7 @@ button{cursor:pointer}
 .list>li.dragging{position:relative;z-index:5;background:var(--surface);box-shadow:0 6px 18px rgba(20,30,60,.2);border-radius:10px;opacity:.94}
 
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabs-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr}
+.tabs-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr}
 .tab{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:58px;border:0;background:none;color:var(--muted);font-size:12px;letter-spacing:.06em}
 .tab b{font:700 20px/1.2 var(--f-min)}
 .tab[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 2px 0 var(--accent)}
@@ -155,6 +158,58 @@ button{cursor:pointer}
 .gview.pick .tbl td,.gview.pick .tbl th{cursor:pointer}
 .gview.pick .tbl td:active,.gview.pick .tbl th:active{background:var(--accent-soft)}
 .tacts{display:flex;gap:8px;margin-top:8px}
+.top h1 small{font:500 12px/1 var(--f-zh);letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);padding:3px 7px;border-radius:6px;margin-left:8px;vertical-align:middle}
+
+/* ---------- 練習（V2） ---------- */
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.qcard h2{margin:0 0 10px;font:700 18px/1.3 var(--f-min)}
+.qopt{margin:0 0 14px}
+.qopt>.lbl{margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.pill{min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:14px}
+.pill[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.pill[disabled]{opacity:.45;cursor:default}
+.pill .n{font-variant-numeric:tabular-nums;opacity:.75;margin-left:4px}
+.qnote{font-size:13px;color:var(--muted);line-height:1.6;margin:8px 0 0}
+.qnote.err{color:var(--danger)}
+.hist-h{display:flex;align-items:baseline;justify-content:space-between;margin:24px 0 4px}
+.hist-h h2{margin:0;font-size:13px;letter-spacing:.06em;color:var(--muted);font-weight:500}
+.hrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 4px;border:0;background:none}
+.hrow:active{background:var(--accent-soft)}
+.hrow .sc{flex:none;min-width:58px;text-align:center;font:700 20px/1.2 var(--f-min);font-variant-numeric:tabular-nums}
+.hrow .sc small{display:block;font:400 11px/1.3 var(--f-zh);color:var(--muted)}
+.hrow .mid{flex:1;min-width:0}
+.hrow .t1{font-weight:500}
+.hrow .t2{font-size:12px;color:var(--muted)}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;background:var(--warn-soft);color:var(--warn);margin-left:6px;vertical-align:1px}
+.qprog{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.qbar{flex:1;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.qtype{display:inline-block;font-size:12px;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:6px;margin-bottom:8px}
+.qq{font:500 20px/1.75 var(--f-ja);margin:0 0 16px;white-space:pre-wrap;overflow-wrap:anywhere}
+.qq u{text-decoration-thickness:2px;text-underline-offset:4px}
+.opts{display:grid;gap:10px;margin:0 0 14px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 14px;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:500 17px/1.5 var(--f-ja)}
+.opt .k{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font:500 13px/1 var(--f-zh);color:var(--muted)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.ok .k{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.opt.bad{border-color:var(--danger);background:var(--bad-soft)}
+.opt.bad .k{background:var(--danger);border-color:var(--danger);color:var(--surface)}
+.opt[disabled]{cursor:default;opacity:1}
+.opt.dimmed{opacity:.55}
+.verdict{font-weight:700;margin:0 0 6px}
+.verdict.ok{color:var(--ok)}.verdict.bad{color:var(--danger)}
+.expl{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:15px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.expl .src{display:block;margin-top:8px;font-size:12px;color:var(--muted)}
+.bigscore{text-align:center;margin:8px 0 18px}
+.bigscore b{display:block;font:700 48px/1.1 var(--f-min);font-variant-numeric:tabular-nums}
+.bigscore span{color:var(--muted);font-size:14px}
+.rv{border-bottom:1px solid var(--line);padding:14px 0}
+.rv:last-child{border-bottom:0}
+.rv .qq{font-size:17px;margin-bottom:10px}
+.rv .opt{min-height:42px;font-size:15px;padding:6px 12px}
+.rv .opts{gap:6px;margin-bottom:10px}
+.rv .expl{margin:0;font-size:14px}
 .toast{position:fixed;z-index:40;left:16px;right:16px;bottom:calc(80px + env(safe-area-inset-bottom,0px));max-width:568px;margin:0 auto;padding:10px 14px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;line-height:1.5}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}.dot{animation:none}}
 </style>
@@ -165,7 +220,7 @@ button{cursor:pointer}
   <div id="notice" class="notice" hidden><span id="noticeTxt"></span><button id="noticeBtn" class="btn sm" type="button" hidden></button></div>
   <header class="top">
     <div>
-      <h1 lang="ja">日語手帳</h1>
+      <h1><span lang="ja">日語手帳</span><small>V2</small></h1>
       <p id="counts" aria-live="polite"></p>
     </div>
     <button id="menuBtn" class="ib tint" type="button" aria-label="備份與設定"><span data-icon="download"></span>備份</button>
@@ -201,12 +256,26 @@ button{cursor:pointer}
     </div>
     <ul id="gList" class="list"></ul>
   </section>
+
+  <section id="view-quiz" aria-label="練習" hidden>
+    <div class="qcard">
+      <h2>AI 出題練習</h2>
+      <div class="qopt"><span class="lbl">題材</span><div id="qzKind" class="chips"></div></div>
+      <div class="qopt"><span class="lbl">範圍</span><div id="qzScope" class="chips"></div></div>
+      <div class="qopt"><span class="lbl">題型</span><div id="qzType" class="chips"></div></div>
+      <button id="qzStart" class="btn primary block" type="button">隨機抽 10 個，開始出題</button>
+      <p id="qzNote" class="qnote"></p>
+    </div>
+    <div class="hist-h"><h2>練習紀錄</h2><span id="qzCount" class="count"></span></div>
+    <ul id="qzList" class="list"></ul>
+  </section>
 </div>
 
 <nav class="tabs" aria-label="主要分頁">
   <div class="tabs-in" role="tablist">
     <button class="tab" id="tab-words" role="tab" type="button" aria-selected="true"><b lang="ja">あ</b>單字</button>
     <button class="tab" id="tab-grammar" role="tab" type="button" aria-selected="false"><b lang="ja">文</b>文法</button>
+    <button class="tab" id="tab-quiz" role="tab" type="button" aria-selected="false"><b lang="ja">練</b>練習</button>
   </div>
 </nav>
 <button id="fab" class="fab" type="button" aria-label="新增文法筆記" hidden><span data-icon="plus"></span></button>
@@ -224,8 +293,8 @@ button{cursor:pointer}
     dict: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/'
   };
 
-  var S = { tab: 'words', words: [], grammar: [], q: { words: '', grammar: '' }, busy: new Set(),
-            loaded: { words: false, grammar: false }, starOnly: { words: false, grammar: false }, reorderGrammar: false };
+  var S = { tab: 'words', words: [], grammar: [], quiz: [], q: { words: '', grammar: '' }, busy: new Set(),
+            loaded: { words: false, grammar: false, quiz: false }, starOnly: { words: false, grammar: false }, reorderGrammar: false };
 
   function $(id) { return document.getElementById(id); }
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
@@ -498,27 +567,215 @@ button{cursor:pointer}
     return { title: first.replace(/^[#*\-•・【\[「『\s]+/, '').slice(0, 30), text: text, conf: null, tables: nTables };
   }
 
-  // ---------- storage: localStorage on this phone ----------
-  function makeLocalStore() {
-    var KEY = 'nihongo-techo:v1';
-    var data = { words: [], grammar: [] }, subs = {}, timer = null, seq = 0;
-    var persistent = true;
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) {
-        try {
-          var d = JSON.parse(raw);
-          data.words = Array.isArray(d.words) ? d.words : [];
-          data.grammar = Array.isArray(d.grammar) ? d.grammar : [];
-        } catch (pe) { try { localStorage.setItem(KEY + ':corrupt', raw); } catch (e2) {} }
+  // ---------- V2：Gemini 純文字生成（練習出題用）----------
+  // 跟圖片辨識共用同一組 API Key、模型名稱、逾時保護與 503 自動重試；出題要想比較久，逾時放寬到 75 秒。
+  var GEMINI_GEN_TIMEOUT_MS = 75000;
+  async function geminiGenerate(apiKey, model, prompt, say) {
+    var headers = { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey };
+    var label = 'AI 出題中…';
+    var body1 = JSON.stringify({ model: model, input: prompt });
+    var r = await withTicker(retry503(function () {
+      return fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/interactions', { method: 'POST', headers: headers, body: body1 }, GEMINI_GEN_TIMEOUT_MS);
+    }, say), say, label);
+    if (r.ok) {
+      var t = geminiText(await r.json());
+      if (t) return t;
+    } else if (r.status !== 404) {
+      await geminiErr(r);
+    }
+    var body2 = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.9 } });
+    var r2 = await withTicker(retry503(function () {
+      return fetchWithTimeout('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', { method: 'POST', headers: headers, body: body2 }, GEMINI_GEN_TIMEOUT_MS);
+    }, say), say, label);
+    if (!r2.ok) await geminiErr(r2);
+    var t2 = geminiText(await r2.json());
+    if (!t2) throw new Error('Gemini 沒有回傳內容，請再試一次。');
+    return t2;
+  }
+
+  // ---------- V2：練習出題 ----------
+  var QUIZ_N = 10;
+  var QUIZ_TYPES = {
+    words: [
+      ['mix', '混合', '每題自行挑最適合這個單字的題型（漢字讀音、表記、文脈規定、言い換え類義 之一）'],
+      ['yomi', '漢字讀音', '漢字読み：句子中用【】標出目標單字（漢字寫法），選出正確的平假名讀音'],
+      ['hyoki', '表記', '表記：句子中用【】標出目標單字的平假名，選出正確的漢字（或片假名）寫法'],
+      ['bunmyaku', '語意填空', '文脈規定：句子中目標單字的位置挖空成（　　），選出最適合填入的詞'],
+      ['iikae', '近義替換', '言い換え類義：句子中用【】標出目標單字或含它的片語，選出意思最接近的說法']
+    ],
+    grammar: [
+      ['mix', '混合', '每題自行挑「文法填空」或「句子排序」其中一種'],
+      ['fill', '文法填空', '文の文法1：句子中挖空成（　　），選出最適合填入的助詞／文法形式'],
+      ['order', '句子排序', '文の文法2（★題）：題目句子中有四個空格「＿＿＿ ＿＿＿ ★ ＿＿＿ ＿＿＿」（★可以在任一格），四個選項是要排進去的四個片段，問哪一個應該放在★的位置']
+    ]
+  };
+  var QUIZ_SCOPES = [['all', '全部'], ['star', '只抽星號'], ['recent', '最近 7 天新增']];
+  function quizTypeName(kind, t) {
+    var a = (QUIZ_TYPES[kind] || []).find(function (x) { return x[0] === t; });
+    return a ? a[1] : t;
+  }
+  function quizPool(kind, scope) {
+    var list = kind === 'words' ? S.words.filter(function (w) { return str(w.word); })
+                                : S.grammar.filter(function (g) { return str(g.title) || str(g.body); });
+    if (scope === 'star') list = list.filter(function (x) { return !!x.starred; });
+    else if (scope === 'recent') {
+      var since = Date.now() - 7 * 864e5;
+      list = list.filter(function (x) { return (x.createdAt || 0) >= since; });
+    }
+    return list;
+  }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  // 抽題目一定由程式隨機抽，不交給 AI 挑（AI 自己挑常常偏向同幾個）。
+  function pickTargets(kind, scope) {
+    var pool = shuffle(quizPool(kind, scope));
+    var picked = pool.slice(0, QUIZ_N);
+    // 文法筆記如果不到 10 則（例如只標了 3 則星號），就輪流重複使用，讓 AI 從同一則筆記裡出不同考點，題數仍然是 10 題。
+    var slots = [];
+    if (kind === 'grammar' && picked.length) { for (var i = 0; i < QUIZ_N; i++) slots.push(picked[i % picked.length]); }
+    else slots = picked;
+    return { picked: picked, slots: slots };
+  }
+  function clip(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; }
+  function buildQuizPrompt(kind, qtype, slots) {
+    var typeDef = (QUIZ_TYPES[kind].find(function (x) { return x[0] === qtype; }) || QUIZ_TYPES[kind][0]);
+    var L = [];
+    L.push('你是日本語能力試驗（JLPT）N5 的出題老師。學生用繁體中文學日文，以下是學生自己筆記裡的內容，請根據它出 ' + slots.length + ' 題四選一的選擇題。');
+    L.push('');
+    L.push('【題型】' + typeDef[1] + '：' + typeDef[2]);
+    if (kind === 'words') {
+      L.push('其他可用題型說明：漢字讀音＝句子中用【】標出漢字單字，選平假名讀音；表記＝句子中用【】標出平假名，選正確漢字；語意填空＝句子挖空（　　）選最適合的詞；近義替換＝句子中用【】標出詞語，選意思最接近的說法。');
+      L.push('如果指定題型不適合某個單字（例如這個單字本來就只有假名寫法，就不能出漢字讀音／表記），改用其他適合的題型，並在 type 寫上實際用的題型名稱。');
+    }
+    L.push('');
+    L.push('【出題規則】');
+    L.push('1. 每個「題目來源」剛好出一題，順序照來源編號，src 欄位填來源編號。');
+    L.push('2. 題目句子用自然的 N5 程度日文，生字不要超過 N5～N4 範圍；只有一個正確答案，四個選項彼此不同、長度相近、都要看起來有可能。');
+    if (kind === 'words') L.push('3. 錯誤選項優先從下方「干擾選項參考」裡挑相近的詞（同詞性、讀音或意思相近），不夠再自己補。');
+    else L.push('3. 從每則筆記裡挑一個 N5 範圍內的文法點出題（同一則筆記出現多次時，每次挑不同的考點或換不同句子）；筆記內容可能是表格或零散的整理，請自己判斷重點，不要考筆記裡沒有的東西。');
+    L.push('4. explanation 用繁體中文寫：先說為什麼正確答案對、錯誤選項為什麼不對（簡短），再附上整句的中文翻譯。不要用 markdown。');
+    L.push('5. question 只放題目本身（日文），不要加「問題1」之類的編號，也不要把選項寫進題目裡。');
+    L.push('6. 題目和選項裡不要用括號標注讀音（學生筆記裡「本（ほん）」這種寫法只是筆記習慣，放進題目會洩漏答案）；N5 以外的漢字直接改寫成平假名。');
+    L.push('');
+    L.push('【只輸出 JSON，不要任何其他文字或程式碼區塊】格式：');
+    L.push('{"questions":[{"src":"q1","type":"題型名稱","question":"題目","options":["選項1","選項2","選項3","選項4"],"answer":0,"explanation":"中文解說"}]}');
+    L.push('answer 是正確選項在 options 裡的索引（0～3）。');
+    L.push('');
+    L.push('【題目來源】');
+    slots.forEach(function (it, i) {
+      var k = 'q' + (i + 1);
+      if (kind === 'words') {
+        L.push(k + '：' + JSON.stringify({ 單字: it.word, 讀音: it.reading || '', 意思: it.meaning || '', 詞性: it.pos || '', 例句: it.example || '' }));
+      } else {
+        L.push(k + '：文法筆記「' + stripInlineMd(it.title || '') + '」');
+        L.push(clip(stripInlineMd(it.body || ''), 1800));
+        L.push('（筆記 ' + k + ' 結束）');
       }
+    });
+    if (kind === 'words') {
+      var ids = {}; slots.forEach(function (x) { ids[x.id] = 1; });
+      var others = shuffle(S.words.filter(function (w) { return !ids[w.id] && str(w.word); })).slice(0, 40);
+      if (others.length) {
+        L.push('');
+        L.push('【干擾選項參考（學生學過的其他單字）】');
+        L.push(others.map(function (w) { return w.word + (w.reading ? '（' + w.reading + '）' : '') + (w.meaning ? '＝' + w.meaning : ''); }).join('、'));
+      }
+    }
+    return L.join('\n');
+  }
+  // AI 回的 JSON 一律檢查過才用：格式不對的題目直接丟掉；選項順序在這裡重新洗牌（AI 很容易把答案都放在同一個位置）。
+  function parseQuizJson(text) {
+    var t = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+    var obj = null;
+    try { obj = JSON.parse(t); } catch (e) {
+      var a = t.indexOf('{'), b = t.lastIndexOf('}');
+      if (a >= 0 && b > a) { try { obj = JSON.parse(t.slice(a, b + 1)); } catch (e2) {} }
+      if (!obj) { a = t.indexOf('['); b = t.lastIndexOf(']'); if (a >= 0 && b > a) { try { obj = JSON.parse(t.slice(a, b + 1)); } catch (e3) {} } }
+    }
+    var arr = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.questions) ? obj.questions : null);
+    if (!arr) throw new Error('AI 回傳的格式看不懂，請再按一次出題。');
+    return arr;
+  }
+  function normalizeQuestions(arr, slots, kind) {
+    var out = [];
+    arr.forEach(function (q, i) {
+      if (!q || typeof q !== 'object') return;
+      var question = str(q.question), opts = Array.isArray(q.options) ? q.options.map(function (o) { return str(String(o == null ? '' : o)); }) : [];
+      var ans = typeof q.answer === 'string' && /^\d+$/.test(q.answer) ? parseInt(q.answer, 10) : q.answer;
+      if (!question || opts.length < 2 || opts.length > 6 || opts.some(function (o) { return !o; })) return;
+      if (typeof ans !== 'number' || ans < 0 || ans >= opts.length || ans !== Math.floor(ans)) return;
+      if (new Set(opts).size !== opts.length) return;
+      var m = /^q(\d+)$/.exec(str(q.src)), si = m ? parseInt(m[1], 10) - 1 : i;
+      var src = slots[si] || slots[i] || null;
+      var correct = opts[ans], sh = shuffle(opts);
+      out.push({
+        src: src ? src.id : '', col: kind,
+        srcLabel: src ? (kind === 'words' ? src.word : stripInlineMd(titleOf(src))) : '',
+        type: str(q.type), question: question, options: sh, answer: sh.indexOf(correct),
+        explanation: str(q.explanation), picked: -1
+      });
+    });
+    return out;
+  }
+  async function generateQuiz(kind, qtype, scope, say) {
+    var meta = getMeta(), key = str(meta.geminiKey);
+    if (!key) throw new Error('還沒有設定 Gemini API Key：請按右上角「備份」→「AI（Gemini）」貼上 Key。');
+    var tg = pickTargets(kind, scope);
+    if (!tg.slots.length) throw new Error('這個範圍裡沒有內容可以出題。');
+    var prompt = buildQuizPrompt(kind, qtype, tg.slots);
+    var text = await geminiGenerate(key, meta.geminiModel || GEMINI_DEFAULT_MODEL, prompt, say);
+    var qs = normalizeQuestions(parseQuizJson(text), tg.slots, kind);
+    if (!qs.length) throw new Error('AI 這次產生的題目格式都不完整，請再按一次出題。');
+    return qs;
+  }
+
+  // ---------- storage: localStorage on this phone ----------
+  // V2：單字／文法沿用跟 V1 完全相同的儲存位置與格式（同一個網域下 V1、V2 看到同一份筆記，換版本不用搬資料）；
+  // 練習紀錄（quiz）另外存在自己的 key——V1 存檔時只會寫 words/grammar，如果放在同一個 key，V1 一存檔就會把練習紀錄洗掉。
+  function makeLocalStore() {
+    var KEY = 'nihongo-techo:v1', QKEY = 'nihongo-techo:quiz';
+    var data = { words: [], grammar: [], quiz: [] }, subs = {}, timer = null, seq = 0;
+    var persistent = true;
+    function loadMain() {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      try {
+        var d = JSON.parse(raw);
+        data.words = Array.isArray(d.words) ? d.words : [];
+        data.grammar = Array.isArray(d.grammar) ? d.grammar : [];
+      } catch (pe) { try { localStorage.setItem(KEY + ':corrupt', raw); } catch (e2) {} }
+    }
+    function loadQuiz() {
+      var raw = localStorage.getItem(QKEY);
+      if (!raw) return;
+      try { var d = JSON.parse(raw); data.quiz = Array.isArray(d) ? d : []; } catch (pe) {}
+    }
+    try {
+      loadMain(); loadQuiz();
       localStorage.setItem(KEY + ':probe', '1'); localStorage.removeItem(KEY + ':probe');
     } catch (e) { persistent = false; }
+    var lastMain = null, lastQuiz = null;
     function saveNow() {
       clearTimeout(timer);
-      try { localStorage.setItem(KEY, JSON.stringify(data)); }
+      try {
+        var m = JSON.stringify({ words: data.words, grammar: data.grammar }), q = JSON.stringify(data.quiz);
+        if (m !== lastMain) { localStorage.setItem(KEY, m); lastMain = m; }
+        if (q !== lastQuiz) { localStorage.setItem(QKEY, q); lastQuiz = q; }
+      }
       catch (e) { if (persistent) { persistent = false; updateNotice(); toast('無法儲存到這個瀏覽器，請立刻按「備份」匯出資料。', 7000); } }
     }
+    // 同一個網域下如果同時開著 V1 跟 V2（例如電腦上兩個分頁），另一個分頁存檔時重新讀一次，
+    // 避免這個分頁手上的舊資料在下一次存檔時把對方剛存的內容蓋掉。
+    window.addEventListener('storage', function (e) {
+      if (e.key !== KEY && e.key !== QKEY) return;
+      try {
+        if (e.key === KEY) { loadMain(); lastMain = null; emit('words'); emit('grammar'); }
+        else { loadQuiz(); lastQuiz = null; emit('quiz'); }
+      } catch (er) {}
+    });
     function save() { clearTimeout(timer); timer = setTimeout(saveNow, 150); }
     window.addEventListener('pagehide', saveNow);
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveNow(); });
@@ -538,10 +795,10 @@ button{cursor:pointer}
         Object.assign(r, d); emit(col); save(); return Promise.resolve();
       },
       remove: function (col, id) { data[col] = data[col].filter(function (x) { return x.id !== id; }); emit(col); save(); return Promise.resolve(); },
-      dump: function () { return { words: data.words, grammar: data.grammar }; },
+      dump: function () { return { words: data.words, grammar: data.grammar, quiz: data.quiz }; },
       merge: function (inc) {
-        var n = { words: 0, grammar: 0 };
-        ['words', 'grammar'].forEach(function (col) {
+        var n = { words: 0, grammar: 0, quiz: 0 };
+        ['words', 'grammar', 'quiz'].forEach(function (col) {
           (Array.isArray(inc[col]) ? inc[col] : []).forEach(function (it) {
             if (!it || typeof it !== 'object' || typeof it.id !== 'string' || !it.id) return;
             var clean = {};
@@ -571,7 +828,7 @@ button{cursor:pointer}
     auth: 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js',
     fs: 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js'
   };
-  var CLOUD_COLS = ['words', 'grammar'];
+  var CLOUD_COLS = ['words', 'grammar', 'quiz'];   // V2 多了練習紀錄 quiz，一樣存在 users/{uid}/quiz/{id}，安全規則不用改
   function cloudAuthErr(e) {
     var code = e && e.code || '';
     if (code === 'auth/email-already-in-use') return '這個 Email 已經註冊過了，請改用「登入」。';
@@ -2191,7 +2448,7 @@ button{cursor:pointer}
   // 有分享清單就優先用它：跳出 iOS 原生分享視窗，使用者自己選「儲存到「檔案」」「AirDrop」「郵件」等，一定看得到檔案去了哪。
   async function exportBackup() {
     var d = store.dump(), now = new Date();
-    var payload = { app: 'nihongo-techo', version: 1, exportedAt: now.toISOString(), words: d.words, grammar: d.grammar };
+    var payload = { app: 'nihongo-techo', version: 1, exportedAt: now.toISOString(), words: d.words, grammar: d.grammar, quiz: d.quiz };
     var name = 'nihongo-techo-' + now.getFullYear() + two(now.getMonth() + 1) + two(now.getDate()) + '.json';
     var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
     var file = null;
@@ -2219,9 +2476,9 @@ button{cursor:pointer}
     fr.onload = function () {
       try {
         var d = JSON.parse(String(fr.result));
-        if (!d || (!Array.isArray(d.words) && !Array.isArray(d.grammar))) throw new Error('bad');
+        if (!d || (!Array.isArray(d.words) && !Array.isArray(d.grammar) && !Array.isArray(d.quiz))) throw new Error('bad');
         var n = store.merge(d);
-        toast('已匯入 ' + n.words + ' 個單字、' + n.grammar + ' 則文法。', 6000);
+        toast('已匯入 ' + n.words + ' 個單字、' + n.grammar + ' 則文法' + (n.quiz ? '、' + n.quiz + ' 筆練習紀錄' : '') + '。', 6000);
       } catch (e) { toast('這個檔案不是有效的備份檔。', 6000); }
     };
     fr.onerror = function () { toast('讀取檔案失敗。'); };
@@ -2262,9 +2519,11 @@ button{cursor:pointer}
       h('label', { class: 'f', style: 'margin-top:10px' }, h('span', { text: '模型名稱（不確定就留預設）' }), modelIn),
       h('p', { class: 'small' },
         '到 ', h('a', { href: 'https://aistudio.google.com/apikey', target: '_blank', rel: 'noopener', text: 'Google AI Studio' }),
-        ' 用 Google 帳號免費申請一組 Key。開啟後，掃描圖片會把照片直接從這支手機傳到 Google 的 Gemini API（不會經過我們），通常比手機內建辨識準，但需要網路，也可能受 Google 免費額度限制而暫時失敗。這組 Key 只存在這個瀏覽器裡，不會包含在備份檔案中，換手機要重新輸入一次。'));
-    geminiBox.hidden = !chk3.checked;
-    chk3.addEventListener('change', function () { setMeta({ ocrEngine: chk3.checked ? 'gemini' : '' }); geminiBox.hidden = !chk3.checked; });
+        ' 用 Google 帳號免費申請一組 Key。「練習」分頁的 AI 出題一定要有這組 Key；掃描圖片則要另外勾選下面的選項才會改用 Gemini。資料會直接從這支手機傳到 Google 的 Gemini API（不會經過我們），需要網路，也可能受 Google 免費額度限制而暫時失敗。這組 Key 只存在這個瀏覽器裡，不會包含在備份檔案中，換手機要重新輸入一次。'));
+    chk3.addEventListener('change', function () { setMeta({ ocrEngine: chk3.checked ? 'gemini' : '' }); });
+    var chk4 = h('input', { type: 'checkbox', id: 'quizAutoStar' });
+    chk4.checked = meta.quizAutoStar !== false;
+    chk4.addEventListener('change', function () { setMeta({ quizAutoStar: chk4.checked }); });
 
     // ----- 雲端同步（選用） -----
     var cloudSec = h('div', { class: 'sec' });
@@ -2344,14 +2603,200 @@ button{cursor:pointer}
       h('div', { class: 'sec' }, h('h2', { text: '設定' }),
         h('label', { class: 'chk', for: 'autoRead' }, chk, h('span', { text: '新增單字時自動加讀音（第一次需下載約 12MB 的字典）' })),
         h('label', { class: 'chk', for: 'autoTables', style: 'margin-top:12px' }, chk2, h('span', { text: '掃描圖片時自動偵測表格，並輸出成表格（未使用 Gemini 時才需要）' })),
-        h('label', { class: 'chk', for: 'useGemini', style: 'margin-top:12px' }, chk3, h('span', { text: '掃描圖片時改用 Gemini 辨識（更準，需要你自己的免費 API Key）' })),
-        geminiBox),
+        h('label', { class: 'chk', for: 'useGemini', style: 'margin-top:12px' }, chk3, h('span', { text: '掃描圖片時改用 Gemini 辨識（更準，需要下方的 API Key）' })),
+        h('label', { class: 'chk', for: 'quizAutoStar', style: 'margin-top:12px' }, chk4, h('span', { text: '練習答錯時，自動幫出處的單字／文法加上星號' }))),
+      h('div', { class: 'sec' }, h('h2', { text: 'AI（Gemini）' }), geminiBox),
       h('div', { class: 'sec' }, h('h2', { text: '隱私' }),
         h('p', { class: 'small', text: '翻譯時，你輸入的單字文字會傳到 Google 翻譯的免費接口。' +
           (chk3.checked ? '你目前開啟了 Gemini 辨識：掃描圖片時，照片會直接從這支手機傳到 Google 的 Gemini API。'
                         : '圖片辨識在手機上進行，照片不會上傳，只會下載一次辨識用的語言資料。') +
+          '使用「練習」出題時，抽到的單字或文法筆記內容會傳到 Google 的 Gemini API 來產生題目。' +
           (cloudSigned ? '你目前開啟了雲端同步：單字與文法的內容會存到你自己的 Firebase 專案裡，只有登入同一個帳號才能看到。' : '') })));
-    showSheet('備份與設定', null, body, function () { cloudUnsub(); }, h('span'));
+    showSheet('備份與設定', null, body, function () { cloudUnsub(); renderQuizSetup(); }, h('span'));
+  }
+
+  // ---------- V2：練習分頁 ----------
+  // 題材／範圍／題型的選擇記在 meta（重新開 App 還是上次的選擇）；練習紀錄存在 quiz 集合，會跟著雲端同步與備份。
+  var QZ = { busy: false };
+  function qzPrefs() {
+    var m = getMeta();
+    var kind = m.quizKind === 'grammar' ? 'grammar' : 'words';
+    var scope = QUIZ_SCOPES.some(function (x) { return x[0] === m.quizScope; }) ? m.quizScope : 'all';
+    var types = QUIZ_TYPES[kind], t = m['quizType_' + kind];
+    if (!types.some(function (x) { return x[0] === t; })) t = 'mix';
+    return { kind: kind, scope: scope, qtype: t };
+  }
+  function pill(label, on, onclick, extra, disabled) {
+    return h('button', { class: 'pill', type: 'button', 'aria-pressed': String(!!on), disabled: !!disabled, onclick: onclick }, label,
+      extra != null ? h('span', { class: 'n', text: extra }) : null);
+  }
+  function renderQuizSetup() {
+    if (S.tab !== 'quiz') return;
+    var p = qzPrefs();
+    $('qzKind').replaceChildren(
+      pill('單字', p.kind === 'words', function () { setMeta({ quizKind: 'words' }); renderQuizSetup(); }),
+      pill('文法', p.kind === 'grammar', function () { setMeta({ quizKind: 'grammar' }); renderQuizSetup(); }));
+    $('qzScope').replaceChildren.apply($('qzScope'), QUIZ_SCOPES.map(function (sc) {
+      var n = quizPool(p.kind, sc[0]).length;
+      return pill(sc[1], p.scope === sc[0], function () { setMeta({ quizScope: sc[0] }); renderQuizSetup(); }, n);
+    }));
+    $('qzType').replaceChildren.apply($('qzType'), QUIZ_TYPES[p.kind].map(function (t) {
+      return pill(t[1], p.qtype === t[0], function () { var o = {}; o['quizType_' + p.kind] = t[0]; setMeta(o); renderQuizSetup(); });
+    }));
+    var n = quizPool(p.kind, p.scope).length, note = $('qzNote'), btn = $('qzStart');
+    note.className = 'qnote';
+    var hasKey = !!str(getMeta().geminiKey);
+    btn.disabled = QZ.busy || !n;
+    if (QZ.busy) return;
+    if (!hasKey) { note.className = 'qnote err'; note.textContent = '要先設定 Gemini API Key 才能出題：按右上角「備份」→「AI（Gemini）」。'; }
+    else if (!n) note.textContent = p.scope === 'star' ? '這個題材還沒有加星號的項目。' : p.scope === 'recent' ? '最近 7 天沒有新增的' + (p.kind === 'words' ? '單字' : '文法筆記') + '。' : '還沒有' + (p.kind === 'words' ? '單字' : '文法筆記') + '可以出題。';
+    else if (p.kind === 'words') note.textContent = '從 ' + n + ' 個單字裡隨機抽 ' + Math.min(QUIZ_N, n) + ' 個，交給 Gemini 出題（會把這些單字送到 Google）。';
+    else note.textContent = '從 ' + n + ' 則筆記裡隨機抽' + (n < QUIZ_N ? '（筆記不到 10 則，會從同一則出不同考點）' : ' 10 則') + '，交給 Gemini 出 10 題（會把筆記內容送到 Google）。';
+    btn.textContent = p.kind === 'words' ? '隨機抽 ' + Math.min(QUIZ_N, n || QUIZ_N) + ' 個，開始出題' : '隨機抽題，開始出題';
+  }
+  function qzItems(rec) { try { var a = JSON.parse(rec.items || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function fmtDateTime(ms) {
+    if (!ms) return '';
+    try { return new Date(ms).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }); } catch (e) { return ''; }
+  }
+  function scopeName(s) { var a = QUIZ_SCOPES.find(function (x) { return x[0] === s; }); return a ? a[1] : ''; }
+  function renderQuizList() {
+    var list = $('qzList'); list.replaceChildren();
+    var rows = S.quiz.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    $('qzCount').textContent = rows.length ? rows.length + ' 次' : '';
+    if (!S.loaded.quiz) { list.append(h('li', { class: 'empty', text: '載入中…' })); return; }
+    if (!rows.length) { list.append(h('li', { class: 'empty', text: '還沒有練習紀錄。選好題材跟範圍，按上面的按鈕開始第一次練習。' })); return; }
+    rows.forEach(function (r) {
+      var done = (r.answered || 0) >= (r.total || 0);
+      list.append(h('li', null, h('button', { class: 'hrow', type: 'button', onclick: function () { openQuizRecord(r.id); } },
+        h('div', { class: 'sc' }, (r.correct || 0) + '/' + (r.total || 0), h('small', { text: done ? '答對' : '已答 ' + (r.answered || 0) })),
+        h('div', { class: 'mid' },
+          h('div', { class: 't1' }, (r.kind === 'grammar' ? '文法' : '單字') + '・' + quizTypeName(r.kind, r.qtype), done ? null : h('span', { class: 'tag', text: '未完成' })),
+          h('div', { class: 't2', text: fmtDateTime(r.createdAt) + '・' + scopeName(r.scope) })))));
+    });
+  }
+  async function startQuiz() {
+    if (QZ.busy) return;
+    var p = qzPrefs(), note = $('qzNote');
+    QZ.busy = true; $('qzStart').disabled = true;
+    note.className = 'qnote'; note.textContent = '準備題目中…';
+    try {
+      var qs = await generateQuiz(p.kind, p.qtype, p.scope, function (t) { note.textContent = t; });
+      var id = store.newId('quiz'), now = Date.now();
+      await store.create('quiz', id, { kind: p.kind, qtype: p.qtype, scope: p.scope, total: qs.length, answered: 0, correct: 0,
+        items: JSON.stringify(qs), createdAt: now, updatedAt: now });
+      QZ.busy = false; renderQuizSetup();
+      if (qs.length < QUIZ_N && p.kind === 'grammar') toast('AI 這次只產生了 ' + qs.length + ' 題可用的題目。');
+      runQuiz(id);
+    } catch (e) {
+      QZ.busy = false; renderQuizSetup();
+      note.className = 'qnote err'; note.textContent = (e && e.message) || String(e);
+    }
+  }
+  function optButton(q, i, cls) {
+    return h('button', { class: 'opt' + (cls ? ' ' + cls : ''), type: 'button', lang: 'ja' },
+      h('span', { class: 'k', text: String(i + 1) }), h('span', { text: q.options[i] }));
+  }
+  function srcLine(q) {
+    if (!q.srcLabel) return null;
+    return h('span', { class: 'src', text: '出處：' + (q.col === 'grammar' ? '文法筆記「' : '單字「') + q.srcLabel + '」' });
+  }
+  // 作答畫面：一次一題，選了馬上看對錯與解說；每答一題就存一次，中途離開下次可以從紀錄繼續。
+  function runQuiz(id) {
+    var rec = S.quiz.find(function (x) { return x.id === id; });
+    if (!rec) return;
+    var items = qzItems(rec), idx = items.findIndex(function (q) { return q.picked < 0; });
+    if (idx < 0) { openQuizRecord(id); return; }
+    var wrap = h('div');
+    var autoStar = getMeta().quizAutoStar !== false;
+    function save() {
+      var answered = items.filter(function (q) { return q.picked >= 0; }).length;
+      var correct = items.filter(function (q) { return q.picked >= 0 && q.picked === q.answer; }).length;
+      return store.patch('quiz', id, { items: JSON.stringify(items), answered: answered, correct: correct, updatedAt: Date.now() }).catch(function () {});
+    }
+    function show() {
+      var q = items[idx];
+      var bar = h('i'); bar.style.width = Math.round(idx / items.length * 100) + '%';
+      var fb = h('div');
+      var btns = q.options.map(function (_, i) {
+        var b = optButton(q, i);
+        b.addEventListener('click', function () { answer(i); });
+        return b;
+      });
+      function answer(i) {
+        if (q.picked >= 0) return;
+        q.picked = i;
+        var ok = i === q.answer;
+        btns.forEach(function (b, j) {
+          b.disabled = true;
+          if (j === q.answer) b.classList.add('ok');
+          else if (j === i) b.classList.add('bad');
+          else b.classList.add('dimmed');
+        });
+        if (!ok && autoStar && q.src) {
+          var col = q.col === 'grammar' ? 'grammar' : 'words';
+          var it = (col === 'words' ? S.words : S.grammar).find(function (x) { return x.id === q.src; });
+          if (it && !it.starred) store.patch(col, q.src, { starred: 1 }).catch(function () {});
+        }
+        save();
+        var last = idx >= items.length - 1;
+        var next = h('button', { class: 'btn primary block', type: 'button', onclick: function () { if (last) finish(); else { idx++; show(); } } }, last ? '看結果' : '下一題');
+        fb.replaceChildren(
+          h('p', { class: 'verdict ' + (ok ? 'ok' : 'bad'), text: ok ? '答對了！' : '答錯了，正確答案是 ' + (q.answer + 1) + '。' + (autoStar && q.src ? '（已加星號）' : '') }),
+          h('div', { class: 'expl' }, q.explanation || '（沒有解說）', srcLine(q)),
+          next);
+        bar.style.width = Math.round((idx + 1) / items.length * 100) + '%';
+        next.focus();
+      }
+      wrap.replaceChildren(
+        h('div', { class: 'qprog' }, h('span', { text: (idx + 1) + ' / ' + items.length }), h('div', { class: 'qbar' }, bar)),
+        q.type ? h('span', { class: 'qtype', text: q.type }) : null,
+        h('p', { class: 'qq', lang: 'ja', text: q.question }),
+        h('div', { class: 'opts' }, btns),
+        fb);
+      var sb = $('sheet').querySelector('.sheet-b'); if (sb) sb.scrollTop = 0;
+    }
+    function finish() {
+      var correct = items.filter(function (q) { return q.picked === q.answer; }).length;
+      var wrong = items.filter(function (q) { return q.picked !== q.answer; });
+      wrap.replaceChildren(
+        h('div', { class: 'bigscore' }, h('b', { text: correct + ' / ' + items.length }),
+          h('span', { text: correct === items.length ? '全對，太厲害了！' : wrong.length + ' 題答錯' + (autoStar ? '，已經幫你把出處加上星號，之後可以選「只抽星號」重練。' : '。') })),
+        h('div', { class: 'sheet-actions', style: 'flex-direction:column' },
+          h('button', { class: 'btn primary block', type: 'button', onclick: function () { openQuizRecord(id); } }, '看每一題的解說'),
+          h('button', { class: 'btn block', type: 'button', onclick: function () {
+            var o = { quizKind: rec.kind, quizScope: rec.scope }; o['quizType_' + rec.kind] = rec.qtype; setMeta(o);
+            sheetClose && sheetClose(); renderQuizSetup(); setTimeout(startQuiz, 0);
+          } }, '同樣設定再練一次'),
+          h('button', { class: 'btn block', type: 'button', onclick: function () { sheetClose && sheetClose(); } }, '回到練習')));
+    }
+    showSheet((rec.kind === 'grammar' ? '文法' : '單字') + '練習・' + quizTypeName(rec.kind, rec.qtype), null, wrap, function () { return save(); }, h('span'));
+    show();
+  }
+  function openQuizRecord(id) {
+    var rec = S.quiz.find(function (x) { return x.id === id; });
+    if (!rec) return;
+    var items = qzItems(rec), done = (rec.answered || 0) >= items.length;
+    var body = h('div', null,
+      h('div', { class: 'bigscore' }, h('b', { text: (rec.correct || 0) + ' / ' + items.length }),
+        h('span', { text: fmtDateTime(rec.createdAt) + '・' + scopeName(rec.scope) + (done ? '' : '・還有 ' + (items.length - (rec.answered || 0)) + ' 題沒答') })),
+      done ? null : h('button', { class: 'btn primary block', type: 'button', style: 'margin-bottom:14px', onclick: function () { runQuiz(id); } }, '繼續作答'),
+      items.map(function (q, n) {
+        var answered = q.picked >= 0;
+        return h('div', { class: 'rv' },
+          h('div', { class: 'qtype', text: (n + 1) + '．' + (q.type || quizTypeName(rec.kind, rec.qtype)) + (answered ? (q.picked === q.answer ? '・答對' : '・答錯') : '・未作答') }),
+          h('p', { class: 'qq', lang: 'ja', text: q.question }),
+          h('div', { class: 'opts' }, q.options.map(function (_, i) {
+            var cls = !answered ? '' : i === q.answer ? 'ok' : i === q.picked ? 'bad' : 'dimmed';
+            var b = optButton(q, i, cls); b.disabled = true; return b;
+          })),
+          answered ? h('div', { class: 'expl' }, q.explanation || '（沒有解說）', srcLine(q))
+                   : h('p', { class: 'small', text: '還沒作答，按上面的「繼續作答」答完才會顯示答案與解說。' }));
+      }));
+    var del = deleteButton(async function () {
+      try { await store.remove('quiz', id); sheetClose && sheetClose(); } catch (e) { toast('刪除失敗。'); }
+    });
+    showSheet('練習紀錄', del, body, null, h('span'));
   }
 
   // ---------- wiring ----------
@@ -2359,15 +2804,20 @@ button{cursor:pointer}
     S.tab = t;
     $('view-words').hidden = t !== 'words';
     $('view-grammar').hidden = t !== 'grammar';
+    $('view-quiz').hidden = t !== 'quiz';
     $('fab').hidden = t !== 'grammar';
     $('tab-words').setAttribute('aria-selected', String(t === 'words'));
     $('tab-grammar').setAttribute('aria-selected', String(t === 'grammar'));
+    $('tab-quiz').setAttribute('aria-selected', String(t === 'quiz'));
+    if (t === 'quiz') { renderQuizSetup(); renderQuizList(); }
     window.scrollTo(0, 0);
   }
 
   document.querySelectorAll('[data-icon]').forEach(function (el) { el.replaceWith(icon(el.getAttribute('data-icon'))); });
   $('tab-words').addEventListener('click', function () { setTab('words'); });
   $('tab-grammar').addEventListener('click', function () { setTab('grammar'); });
+  $('tab-quiz').addEventListener('click', function () { setTab('quiz'); });
+  $('qzStart').addEventListener('click', startQuiz);
   $('fab').addEventListener('click', function () { openGrammar(null); });
   $('menuBtn').addEventListener('click', openMenu);
   $('noticeBtn').addEventListener('click', function () { if (noticeAction) noticeAction(); });
@@ -2455,8 +2905,9 @@ button{cursor:pointer}
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetClose) sheetClose(); });
 
-  store.watch('words', 'createdAt', function (rows) { S.words = rows; S.loaded.words = true; renderWords(); });
-  store.watch('grammar', 'updatedAt', function (rows) { S.grammar = rows; S.loaded.grammar = true; renderGrammar(); });
+  store.watch('words', 'createdAt', function (rows) { S.words = rows; S.loaded.words = true; renderWords(); renderQuizSetup(); });
+  store.watch('grammar', 'updatedAt', function (rows) { S.grammar = rows; S.loaded.grammar = true; renderGrammar(); renderQuizSetup(); });
+  store.watch('quiz', 'createdAt', function (rows) { S.quiz = rows; S.loaded.quiz = true; renderQuizList(); });
 })();
 </script>
 </body>
