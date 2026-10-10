@@ -290,9 +290,10 @@ button{cursor:pointer}
 
   var CDN = {
     tesseract: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
-    kuroshiro: 'https://cdn.jsdelivr.net/npm/kuroshiro@1/dist/kuroshiro.min.js',
-    analyzer: 'https://cdn.jsdelivr.net/npm/kuroshiro-analyzer-kuromoji@1/dist/kuroshiro-analyzer-kuromoji.min.js',
-    dict: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/'
+    // V2：讀音字典優先從跟 App 放在一起的 dict/ 資料夾載入（同一個 GitHub repo），失敗才退回 jsDelivr。
+    kuromojiLocal: 'dict/kuromoji.js', dictLocal: 'dict/',
+    kuromojiCdn: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js',
+    dictCdn: 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/'
   };
 
   var S = { tab: 'words', words: [], grammar: [], quiz: [], q: { words: '', grammar: '' }, busy: new Set(),
@@ -1044,20 +1045,47 @@ button{cursor:pointer}
   var HAS_JA = /[぀-ヿ㐀-鿿]/;
   var KANA_ONLY = /^[぀-ヿー・\s]+$/;
 
-  var kuroP = null, kuro = null, kuroFail = false;
-  async function getKuro() {
-    if (kuro) return kuro;
-    if (kuroFail) return null;
+  // ---------- 讀音（V2 改寫）----------
+  // 以前用 kuroshiro + kuromoji（都從 jsDelivr 下載），而且「抓中文意思」要等字典載完才一起存檔，
+  // 字典下載一卡住，單字就永遠停在「翻譯中」。V2 改成：
+  //   1. 直接用 kuromoji 斷詞、把片假名讀音轉成平假名（不再需要 kuroshiro）；
+  //   2. 字典優先從 App 同一個網站的 dict/ 載入，載不到才退回 jsDelivr；每個來源都有逾時；
+  //   3. 中文意思先存，讀音在背景補上；字典載入失敗只會跳提示，下次新增單字再重試。
+  var KURO_TIMEOUT_MS = 90000;
+  var kuroP = null, kuro = null;
+  function withTimeout(p, ms, label) {
+    return new Promise(function (res, rej) {
+      var t = setTimeout(function () { rej(new Error((label || '載入') + '逾時')); }, ms);
+      p.then(function (v) { clearTimeout(t); res(v); }, function (e) { clearTimeout(t); rej(e); });
+    });
+  }
+  function buildTokenizer(dicPath) {
+    return new Promise(function (res, rej) {
+      try {
+        window.kuromoji.builder({ dicPath: dicPath }).build(function (err, tk) { if (err || !tk) rej(err || new Error('build failed')); else res(tk); });
+      } catch (e) { rej(e); }
+    });
+  }
+  async function loadKuro() {
+    var sources = [[CDN.kuromojiLocal, CDN.dictLocal], [CDN.kuromojiCdn, CDN.dictCdn]];
+    var lastErr = null;
+    for (var i = 0; i < sources.length; i++) {
+      try {
+        if (!window.kuromoji) await withTimeout(loadScript(sources[i][0]), 30000, '讀音程式');
+        return await withTimeout(buildTokenizer(sources[i][1]), KURO_TIMEOUT_MS, '讀音字典');
+      } catch (e) { lastErr = e; }
+    }
+    throw lastErr || new Error('load failed');
+  }
+  function kataToHira(s) { return String(s).replace(/[\u30a1-\u30f6]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); }); }
+  function getKuro() {
+    if (kuro) return Promise.resolve(kuro);
     if (!kuroP) {
-      toast('第一次使用會下載讀音字典（約 12MB），請稍候…', 6000);
-      kuroP = (async function () {
-        await loadScript(CDN.kuroshiro); await loadScript(CDN.analyzer);
-        var K = window.Kuroshiro && (window.Kuroshiro.default || window.Kuroshiro);
-        var A = window.KuromojiAnalyzer && (window.KuromojiAnalyzer.default || window.KuromojiAnalyzer);
-        var k = new K(); await k.init(new A({ dictPath: CDN.dict }));
-        return k;
-      })().then(function (k) { kuro = k; return k; }, function () {
-        kuroFail = true; toast('讀音字典載入失敗，讀音欄位可以手動填寫。', 6000); return null;
+      toast('正在載入讀音字典（第一次約 18MB），中文意思會先出來，讀音稍後自動補上…', 6000);
+      kuroP = loadKuro().then(function (tk) { kuro = tk; return tk; }, function () {
+        kuroP = null;   // 不永久放棄：下次新增單字會再試一次
+        toast('讀音字典這次載入失敗（可能網路不穩），讀音可以手動填寫，下次新增單字會再試一次。', 7000);
+        return null;
       });
     }
     return kuroP;
@@ -1065,9 +1093,27 @@ button{cursor:pointer}
   async function readingOf(word) {
     if (getMeta().autoReading === false) return '';
     if (!HAS_JA.test(word) || KANA_ONLY.test(word) || word.length > 14) return '';
-    var k = await getKuro(); if (!k) return '';
-    try { var r = await k.convert(word, { to: 'hiragana' }); return r && r !== word ? r : ''; } catch (e) { return ''; }
+    var tk = await getKuro(); if (!tk) return '';
+    try {
+      var r = kataToHira(tk.tokenize(word).map(function (t) { return (t.reading && t.reading !== '*') ? t.reading : t.surface_form; }).join(''));
+      return r && r !== word ? r : '';
+    } catch (e) { return ''; }
   }
+  // 背景補讀音：只補「目前還是空白」的讀音，不會蓋掉使用者手動填的內容；單字畫面開著的話也一起更新欄位。
+  async function fillReadings(ids) {
+    if (getMeta().autoReading === false || !ids.length) return;
+    for (var i = 0; i < ids.length; i++) {
+      var w = S.words.find(function (x) { return x.id === ids[i]; });
+      if (!w || str(w.reading)) continue;
+      var r = await readingOf(w.word);
+      if (!r) { if (!kuro) return; else continue; }
+      w = S.words.find(function (x) { return x.id === ids[i]; });
+      if (!w || str(w.reading)) continue;
+      await store.patch('words', w.id, { reading: r }).catch(function () {});
+      if (S.openWord && S.openWord.id === w.id && !S.openWord.F.reading.value.trim()) S.openWord.F.reading.value = r;
+    }
+  }
+
   async function lookup(input) {
     var word = input, note = '';
     if (!HAS_JA.test(input)) {           // English (or other) input -> find the Japanese word first
@@ -1081,8 +1127,7 @@ button{cursor:pointer}
     var patch = { meaning: parts.slice(0, 4).join('；'), pos: t.pos };
     if (word !== input) patch.word = word;
     if (note) patch.note = note;
-    patch.reading = await readingOf(word);
-    return patch;
+    return patch;   // 讀音不在這裡等，交給 fillReadings() 背景補
   }
 
   async function translateItems(items) {
@@ -1093,6 +1138,8 @@ button{cursor:pointer}
       var it = items[n];
       try {
         var p = await lookup(it.word);
+        var cur = S.words.find(function (x) { return x.id === it.id; });
+        if (cur && str(cur.reading) && (!p.word || p.word === cur.word)) delete p.reading;
         await store.patch('words', it.id, p);
         out[it.id] = p;
       } catch (e) {
@@ -1101,6 +1148,7 @@ button{cursor:pointer}
       S.busy.delete(it.id); renderWords();
       if (n < items.length - 1) await sleep(200);
     }
+    fillReadings(Object.keys(out));
     if (fails) toast(net ? '翻譯服務連不上（可能沒網路，或被暫時限制）。單字已保留，可以稍後按「重新翻譯」。' : fails + ' 個單字沒有取得翻譯，可以手動填寫。', 6000);
     return out;
   }
@@ -2158,16 +2206,19 @@ button{cursor:pointer}
     var defs = [['word', '單字', 'ja', 'big'], ['reading', '讀音（平假名）', 'ja'], ['meaning', '中文意思', 'zh-Hant'],
                 ['pos', '詞性', 'zh-Hant'], ['example', '例句', 'ja', 'ta'], ['exampleZh', '例句翻譯', 'zh-Hant', 'ta'], ['note', '我的筆記', 'zh-Hant', 'ta']];
     var status = h('span', { class: 'status' });
+    // 只存使用者真的改過的欄位：讀音是背景補上的，如果整頁一起存，可能會用「打開畫面時還是空白」的讀音欄把它蓋掉。
+    var touched = {};
     var as = autosaver(async function () {
       var d = {};
-      Object.keys(F).forEach(function (k) { d[k] = F[k].value.trim(); });
-      if (!d.word) { status.textContent = '單字不可空白'; return; }
+      Object.keys(touched).forEach(function (k) { d[k] = F[k].value.trim(); });
+      if ('word' in d && !d.word) { status.textContent = '單字不可空白'; return; }
+      if (!Object.keys(d).length) return;
       await store.patch('words', id, d);
     }, status);
     var labels = defs.map(function (d) {
       var el = d[3] === 'ta' ? h('textarea', { rows: 2, lang: d[2] }) : h('input', { type: 'text', lang: d[2], class: d[3] === 'big' ? 'big' : null, autocomplete: 'off' });
       el.value = w[d[0]] || '';
-      el.addEventListener('input', function () { if (d[3] === 'ta') grow(el, 240); as.touch(); });
+      el.addEventListener('input', function () { touched[d[0]] = 1; if (d[3] === 'ta') grow(el, 240); as.touch(); });
       F[d[0]] = el;
       return h('label', { class: 'f' }, h('span', { text: d[1] }), el);
     });
@@ -2179,17 +2230,22 @@ button{cursor:pointer}
       retr.disabled = false;
       var p = res[id];
       if (p) {
-        ['word', 'reading', 'meaning', 'pos'].forEach(function (k) { if (p[k] != null && F[k]) F[k].value = p[k]; });
+        ['word', 'meaning', 'pos'].forEach(function (k) { if (p[k] != null && F[k]) F[k].value = p[k]; delete touched[k]; });
         if (p.note && !F.note.value.trim()) { F.note.value = p.note; grow(F.note, 240); }
         status.textContent = '已儲存';
+        // 重新翻譯也重新查讀音：先清空，再交給背景補（字典好了會自動填進上面的讀音欄）
+        F.reading.value = ''; delete touched.reading;
+        await store.patch('words', id, { reading: '' }).catch(function () {});
+        fillReadings([id]);
       }
     } }, icon('refresh'), '重新翻譯');
     var del = deleteButton(async function () {
       as.stop();
       try { await store.remove('words', id); sheetClose && sheetClose(); } catch (e) { toast('刪除失敗。'); }
     });
+    S.openWord = { id: id, F: F };
     showSheet('單字', [starToggle('words', id, w.starred), del], h('div', null, labels, h('div', { class: 'sheet-actions' }, retr)),
-      function () { return as.flush(); }, status);
+      function () { S.openWord = null; return as.flush(); }, status);
     labels.forEach(function (l) { var t = l.querySelector('textarea'); if (t) grow(t, 240); });
   }
 
@@ -2611,7 +2667,7 @@ button{cursor:pointer}
         h('p', { class: 'small', text: last + ' 匯入時，相同的項目會被備份內容覆蓋，其他資料不受影響。' }), fileIn),
       cloudSec,
       h('div', { class: 'sec' }, h('h2', { text: '設定' }),
-        h('label', { class: 'chk', for: 'autoRead' }, chk, h('span', { text: '新增單字時自動加讀音（第一次需下載約 12MB 的字典）' })),
+        h('label', { class: 'chk', for: 'autoRead' }, chk, h('span', { text: '新增單字時自動加讀音（第一次需下載約 18MB 的字典，讀音會比中文意思晚一點出現）' })),
         h('label', { class: 'chk', for: 'autoTables', style: 'margin-top:12px' }, chk2, h('span', { text: '掃描圖片時自動偵測表格，並輸出成表格（未使用 Gemini 時才需要）' })),
         h('label', { class: 'chk', for: 'useGemini', style: 'margin-top:12px' }, chk3, h('span', { text: '掃描圖片時改用 Gemini 辨識（更準，需要下方的 API Key）' })),
         h('label', { class: 'chk', for: 'quizAutoStar', style: 'margin-top:12px' }, chk4, h('span', { text: '練習答錯時，自動幫出處的單字／文法加上星號' }))),
