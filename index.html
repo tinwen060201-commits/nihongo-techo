@@ -1025,12 +1025,20 @@ button{cursor:pointer}
 
   // ---------- translation: Google Translate free endpoint ----------
   var POS_ZH = { verb: '動詞', noun: '名詞', adjective: '形容詞', adverb: '副詞', pronoun: '代名詞', preposition: '介系詞', conjunction: '連接詞', interjection: '感嘆詞', particle: '助詞', suffix: '接尾詞', prefix: '接頭詞', numeral: '數詞', counter: '量詞', expression: '慣用語' };
-  async function gtx(sl, tl, q) {
-    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, 12000);
+  // ---------- 翻譯：依序嘗試，哪個成功用哪個（V2，2026-10-11）----------
+  // Google 翻譯的免費非官方接口從 2026 年 9 月中起，對 client=gtx 常回 429（機器人驗證頁），
+  // 有人回報換成 client=dict-chrome-ex 或 client=at 還能用。這裡依序嘗試，記住上次成功的那個下次先試；
+  // 三個都失敗，translateItems() 會把這些單字整批交給 Gemini（如果有設定 Key）。
+  var GT_CLIENTS = ['gtx', 'dict-chrome-ex', 'at'];
+  var GT_TIMEOUT_MS = 8000;
+  var gtDownUntil = 0;   // 三個都失敗後，接下來幾分鐘直接跳過 Google（同一批單字不用每個都各等一輪）
+  async function gtxOnce(client, sl, tl, q) {
+    var ctl = new AbortController(), timer = setTimeout(function () { ctl.abort(); }, GT_TIMEOUT_MS);
     try {
-      var r = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sl + '&tl=' + tl + '&dt=t&dt=bd&q=' + encodeURIComponent(q), { signal: ctl.signal });
+      var r = await fetch('https://translate.googleapis.com/translate_a/single?client=' + client + '&sl=' + sl + '&tl=' + tl + '&dt=t&dt=bd&q=' + encodeURIComponent(q), { signal: ctl.signal });
       if (!r.ok) throw { code: 'http', status: r.status };
-      var d = await r.json();
+      var d = await r.json();   // 被擋時回的是 HTML 驗證頁，這裡會解析失敗，一樣當成失敗換下一個
+      if (!Array.isArray(d)) throw { code: 'format' };
       var text = (Array.isArray(d[0]) ? d[0] : []).map(function (s) { return s && typeof s[0] === 'string' ? s[0] : ''; }).join('').trim();
       var pos = '', alts = [];
       try {
@@ -1041,6 +1049,56 @@ button{cursor:pointer}
       } catch (e2) {}
       return { text: text, pos: pos, alts: alts };
     } finally { clearTimeout(timer); }
+  }
+  async function gtx(sl, tl, q) {
+    if (Date.now() < gtDownUntil) throw { code: 'down' };
+    var pref = getMeta().gtClient, order = GT_CLIENTS.slice();
+    if (pref && order.indexOf(pref) > 0) { order.splice(order.indexOf(pref), 1); order.unshift(pref); }
+    var lastErr = null;
+    for (var i = 0; i < order.length; i++) {
+      try {
+        var res = await gtxOnce(order[i], sl, tl, q);
+        if (pref !== order[i]) setMeta({ gtClient: order[i] });
+        gtDownUntil = 0;
+        return res;
+      } catch (e) { lastErr = e; }
+    }
+    gtDownUntil = Date.now() + 5 * 60000;
+    throw lastErr || { code: 'down' };
+  }
+  // Gemini 備援：一次把整批單字交給 Gemini（免費額度每分鐘次數有限，所以不要一個單字打一次）。
+  async function geminiTranslateBatch(inputs, say) {
+    var meta = getMeta(), key = str(meta.geminiKey);
+    if (!key || !inputs.length) return null;
+    var prompt = [
+      '你是日文老師。學生用繁體中文（台灣）學日文，以下每一行是學生要查的一個單字或短語（可能是日文，也可能是英文）。',
+      '請逐一查詢，只輸出 JSON，不要任何其他文字或程式碼區塊，格式：',
+      '{"items":[{"input":"原樣照抄輸入","word":"日文寫法","reading":"平假名讀音","meaning":"繁體中文意思","pos":"詞性"}]}',
+      '規則：',
+      '1. input 原樣照抄，順序跟輸入一樣，一個輸入對應一筆。',
+      '2. 輸入是日文時，word 原樣照抄；輸入是英文時，word 填最常用的日文說法。',
+      '3. reading 用平假名寫整個 word 的讀音；word 本來就全是假名時填空字串。',
+      '4. meaning 用台灣常用的繁體中文，最常用的 1～4 個意思，用「；」分隔，簡短，不要解釋句。',
+      '5. pos 用中文詞性，例如：名詞、動詞、い形容詞、な形容詞、副詞、慣用語；不確定就填空字串。',
+      '',
+      '要查的單字：'
+    ].concat(inputs.map(function (x) { return '- ' + x; })).join('\n');
+    var text = await geminiGenerate(key, meta.geminiModel || GEMINI_DEFAULT_MODEL, prompt, say);
+    var t = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, ''), obj = null;
+    try { obj = JSON.parse(t); } catch (e) { var a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a >= 0 && b > a) { try { obj = JSON.parse(t.slice(a, b + 1)); } catch (e2) {} } }
+    var arr = obj && Array.isArray(obj.items) ? obj.items : (Array.isArray(obj) ? obj : null);
+    if (!arr) throw new Error('Gemini 回傳的格式看不懂');
+    var out = {};
+    arr.forEach(function (it, i) {
+      if (!it || typeof it !== 'object') return;
+      var inp = str(it.input), idx = inputs.indexOf(inp);
+      if (idx < 0 && i < inputs.length) idx = i;
+      if (idx < 0 || out[inputs[idx]]) return;
+      var meaning = str(it.meaning);
+      if (!meaning) return;
+      out[inputs[idx]] = { word: str(it.word), reading: str(it.reading), meaning: meaning, pos: str(it.pos) };
+    });
+    return out;
   }
   var HAS_JA = /[぀-ヿ㐀-鿿]/;
   var KANA_ONLY = /^[぀-ヿー・\s]+$/;
@@ -1131,25 +1189,55 @@ button{cursor:pointer}
   }
 
   async function translateItems(items) {
-    var out = {}, fails = 0, net = 0;
+    var out = {}, fails = 0, net = 0, viaGemini = 0, gemErr = '';
+    var later = [];   // Google 三個接口都失敗的單字，最後整批交給 Gemini
     items.forEach(function (i) { S.busy.add(i.id); });
     renderWords();
+    async function save(it, p) {
+      var cur = S.words.find(function (x) { return x.id === it.id; });
+      if (cur && str(cur.reading) && (!p.word || p.word === cur.word)) delete p.reading;
+      await store.patch('words', it.id, p);
+      out[it.id] = p;
+    }
     for (var n = 0; n < items.length; n++) {
-      var it = items[n];
+      var it = items[n], done = false;
       try {
-        var p = await lookup(it.word);
-        var cur = S.words.find(function (x) { return x.id === it.id; });
-        if (cur && str(cur.reading) && (!p.word || p.word === cur.word)) delete p.reading;
-        await store.patch('words', it.id, p);
-        out[it.id] = p;
+        await save(it, await lookup(it.word));
+        done = true;
       } catch (e) {
-        fails++; if (!e || e.code !== 'empty') net++;
+        if (e && e.code === 'empty') fails++;
+        else later.push(it);
       }
-      S.busy.delete(it.id); renderWords();
-      if (n < items.length - 1) await sleep(200);
+      if (done || (later.indexOf(it) < 0)) { S.busy.delete(it.id); renderWords(); }
+      if (n < items.length - 1 && Date.now() >= gtDownUntil) await sleep(200);
+    }
+    if (later.length) {
+      var res = null;
+      if (str(getMeta().geminiKey)) {
+        try { res = await geminiTranslateBatch(later.map(function (x) { return x.word; })); }
+        catch (e) { gemErr = (e && e.message) || ''; }
+      }
+      for (var k = 0; k < later.length; k++) {
+        var x = later[k], g = res && res[x.word];
+        if (g) {
+          var p = { meaning: g.meaning, pos: g.pos };
+          if (g.word && g.word !== x.word && !HAS_JA.test(x.word)) { p.word = g.word; p.note = '輸入：' + x.word; }
+          if (g.reading && g.reading !== (p.word || x.word)) p.reading = g.reading;
+          try { await save(x, p); viaGemini++; } catch (e) { fails++; net++; }
+        } else { fails++; net++; }
+        S.busy.delete(x.id);
+      }
+      renderWords();
     }
     fillReadings(Object.keys(out));
-    if (fails) toast(net ? '翻譯服務連不上（可能沒網路，或被暫時限制）。單字已保留，可以稍後按「重新翻譯」。' : fails + ' 個單字沒有取得翻譯，可以手動填寫。', 6000);
+    if (fails) {
+      var hasKey = !!str(getMeta().geminiKey);
+      toast(net
+        ? (hasKey
+            ? 'Google 翻譯跟 Gemini 都沒有成功' + (gemErr ? '（' + gemErr.slice(0, 60) + '）' : '') + '。單字已保留，可以稍後按「重新翻譯」。'
+            : 'Google 翻譯連不上（可能被 Google 暫時擋住）。到「備份」→「AI（Gemini）」貼上 Gemini Key，之後會自動改用 Gemini 翻譯。單字已保留。')
+        : fails + ' 個單字沒有取得翻譯，可以手動填寫。', 8000);
+    } else if (viaGemini) toast('Google 翻譯目前連不上，這次改用 Gemini 翻譯了 ' + viaGemini + ' 個單字。', 4000);
     return out;
   }
 
