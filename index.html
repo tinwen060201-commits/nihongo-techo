@@ -656,7 +656,7 @@ button{cursor:pointer}
     bunmyaku: '語意填空：question 是一個日文句子，目標單字的位置換成（　　）。options 是 4 個詞（其中一個是目標單字），answer_text 是目標單字。其他 3 個要是同詞性、但放進去意思不通的詞。',
     iikae: '近義替換：question 是一個日文句子，用【】框住目標單字或含它的短語。options 是 4 個日文說法，answer_text 是意思最接近【】的那一個。',
     fill: '文法填空：question 是一個日文句子，把要考的助詞或文法形式換成（　　）。options 是 4 個候選，answer_text 是正確的那一個。',
-    order: '句子排序：不要寫 question 和 options。改成提供 before（空格前面的文字）、parts（剛好 4 個片段，照「正確順序」排列）、after（空格後面的文字，含句點）。before + parts[0] + parts[1] + parts[2] + parts[3] + after 接起來，必須正好是一個正確、自然的句子。每個片段是一個有意義的小單位（例如「本を」「読んで」「から」），而且 4 個片段只能有一種正確排法（不要出可以互換順序的片段）。'
+    order: '句子排序（JLPT 的★題）：不要寫 question 和 options。改成提供 before（空格前面的文字）、parts（剛好 4 個片段，照「正確順序」排列）、after（空格後面的文字）。before + parts[0] + parts[1] + parts[2] + parts[3] + after 接起來，必須正好是一個正確、自然的句子。切法要像 JLPT 真題一樣「切細」：(a) 4 個片段要剛好落在這則筆記要考的文法點上，例如考「〜た後で」就要把「た形動詞」「後」「で」這些拆開放進 parts；(b) 助詞可以單獨當一個片段（例如「に」「が」「の」「を」），不要每個片段都是「名詞＋助詞」這種一看就知道順序的大塊；(c) 每個片段大多 1～4 個字；(d) 要真的懂這個文法才排得出來，但 4 個片段仍然只能有一種正確排法。before 和 after 放其他不考的部分。不要放任何標點符號（。、！？）。'
   };
   var TYPE_EXAMPLE = {
     yomi: '{"src":"q1","question":"【学校】まで歩いて行きます。","options":["がっこう","がこう","がっこ","かっこう"],"answer_text":"がっこう","explanation":"「学校」讀作がっこう，有促音っ。整句：走路去學校。"}',
@@ -664,7 +664,7 @@ button{cursor:pointer}
     bunmyaku: '{"src":"q1","question":"のどがかわいたので、水を（　　）。","options":["飲みます","食べます","読みます","書きます"],"answer_text":"飲みます","explanation":"口渴了要「喝」水，用飲みます。整句：因為口渴了，所以喝水。"}',
     iikae: '{"src":"q1","question":"この店は【おいしくない】です。","options":["まずい","たかい","やすい","ひろい"],"answer_text":"まずい","explanation":"おいしくない＝不好吃，意思最接近まずい。整句：這家店不好吃。"}',
     fill: '{"src":"q1","question":"わたしは毎朝パン（　　）食べます。","options":["を","に","で","が"],"answer_text":"を","explanation":"「食べます」的受詞用を。整句：我每天早上吃麵包。"}',
-    order: '{"src":"q2","before":"わたしは","parts":["駅の","前に","ある","店で"],"after":"パンを買いました。","explanation":"「駅の前にある店」＝車站前面的店，名詞修飾要放在「店」前面。整句：我在車站前面的店買了麵包。"}'
+    order: '{"src":"q2","before":"3年","parts":["前","に","日本","へ"],"after":"来ました","explanation":"「〜年前に」表示幾年前，「に」接在「前」後面表示時間點；「日本へ」表示移動的方向。整句：我三年前來到日本。"}'
   };
   function assignTypes(kind, qtype, slots) {
     if (kind === 'words') {
@@ -688,12 +688,12 @@ button{cursor:pointer}
     used.forEach(function (t) { L.push('・' + TYPE_RULE[t]); });
     L.push('');
     L.push('【共用規則】');
-    L.push('1. 每個來源剛好出一題，src 填來源編號（q1、q2…），順序跟來源一樣。');
+    L.push('1. 每個來源剛好出一題，一共 ' + slots.length + ' 題，一題都不能少。src 填來源編號（q1、q2…），順序跟來源一樣。');
     L.push('2. 句子用自然、簡單的 N5 日文。只能有一個正確答案。4 個選項（或 4 個片段）彼此都不一樣。');
     L.push('3. answer_text 必須跟 options 裡的其中一個「一字不差」完全相同。');
     L.push('4. 題目、選項、片段裡都不要用括號標注讀音（例如不要寫「本（ほん）」）。');
     L.push('5. explanation 用繁體中文，2～3 句：說明文法或單字重點、為什麼是這個答案，最後附「整句：」加上整句的中文翻譯。不要用 markdown。');
-    if (used.indexOf('order') >= 0) L.push('6. 句子排序題的 explanation 只說明正確語序和文法，不要提到★，也不要說「答案是第幾個」。');
+    if (used.indexOf('order') >= 0) L.push('6. 句子排序題的 explanation 只說明正確語序和文法，不要提到★，也不要說「答案是第幾個」。句子排序題的 before、parts、after 都不要有標點符號。');
     if (kind === 'words') L.push('7. 錯誤選項優先從下方「干擾選項參考」挑相近的詞，不夠再自己補。');
     else L.push('7. 從每則筆記挑一個 N5 範圍的文法點出題；同一則筆記出現好幾次時，每次換不同考點或不同句子。不要考筆記裡沒有的東西。');
     L.push('');
@@ -743,7 +743,7 @@ button{cursor:pointer}
     arr.forEach(function (q, i) {
       if (!q || typeof q !== 'object') return;
       var m = /^q(\d+)$/.exec(str(q.src)), si = m ? parseInt(m[1], 10) - 1 : i;
-      if (si < 0 || si >= slots.length || seen[si]) return;
+      if (si < 0 || si >= slots.length || seen[si]) { QZ.dropped++; return; }
       var src = slots[si], t = (types && types[si]) || '';
       var base = {
         src: src ? src.id : '', col: kind,
@@ -752,14 +752,15 @@ button{cursor:pointer}
       };
       if (t === 'order') {
         // 句子排序：★ 的位置由程式隨機決定，答案由程式算，AI 只負責句子跟切片段。
-        var parts = Array.isArray(q.parts) ? q.parts.map(function (x) { return str(String(x == null ? '' : x)); }) : [];
-        if (parts.length !== 4 || parts.some(function (x) { return !x; }) || new Set(parts).size !== 4) return;
-        var before = str(q.before), after = str(q.after);
+        // 標點符號一律拿掉（使用者要求）；AI 如果把「。」單獨當一個片段，拿掉後剛好剩 4 個也照樣可用
+        var parts = (Array.isArray(q.parts) ? q.parts : []).map(function (x) { return noPunct(String(x == null ? '' : x)); }).filter(Boolean);
+        if (parts.length !== 4 || new Set(parts).size !== 4) { QZ.dropped++; return; }
+        var before = noPunct(q.before), after = noPunct(q.after);
         var star = Math.floor(Math.random() * 4);
         var blanks = parts.map(function (_, k) { return k === star ? '［★］' : '［' + CIRCLED[k] + '］'; }).join('');
         var opts = shuffle(parts);
         out.push(Object.assign(base, {
-          question: (before ? before + ' ' : '') + blanks + (after ? ' ' + after : '') + '\n\n★ 是第 ' + (star + 1) + ' 格，哪一個要放在 ★？',
+          question: before + blanks + after + '\n\n★ 是第 ' + (star + 1) + ' 格，哪一個要放在 ★？',
           options: opts, answer: opts.indexOf(parts[star]),
           explanation: (base.explanation ? base.explanation + '\n\n' : '') +
             '正確句子：' + before + parts.join('') + after + '\n排法：' +
@@ -769,24 +770,28 @@ button{cursor:pointer}
         return;
       }
       var question = str(q.question), opts2 = Array.isArray(q.options) ? q.options.map(function (o) { return str(String(o == null ? '' : o)); }) : [];
-      if (!question || opts2.length < 2 || opts2.length > 6 || opts2.some(function (o) { return !o; })) return;
-      if (new Set(opts2).size !== opts2.length) return;
+      if (!question || opts2.length < 2 || opts2.length > 6 || opts2.some(function (o) { return !o; })) { QZ.dropped++; return; }
+      if (new Set(opts2).size !== opts2.length) { QZ.dropped++; return; }
       // 優先用 answer_text（答案文字）找出是第幾個；沒有才退回舊的 answer 索引
       var ans = -1, at = str(q.answer_text);
       if (at) ans = opts2.indexOf(at);
-      if (ans < 0 && at) ans = opts2.findIndex(function (o) { return o.replace(/\s/g, '') === at.replace(/\s/g, ''); });
+      if (ans < 0 && at) ans = opts2.findIndex(function (o) { return looseEq(o, at); });
       if (ans < 0 && !at) {
         var n = typeof q.answer === 'string' && /^\d+$/.test(q.answer) ? parseInt(q.answer, 10) : q.answer;
         if (typeof n === 'number' && n >= 0 && n < opts2.length && n === Math.floor(n)) ans = n;
       }
-      if (ans < 0) return;
+      if (ans < 0) { QZ.dropped++; return; }
       var correct = opts2[ans], sh = shuffle(opts2);
       out.push(Object.assign(base, { question: question, options: sh, answer: sh.indexOf(correct) }));
       seen[si] = 1;
     });
-    out.sort(function (x, y) { return x._si - y._si; });
-    out.forEach(function (x) { delete x._si; });
-    return out;
+    return out;   // 每題帶著 _si（來源編號），由 generateQuiz 排序、補題後再拿掉
+  }
+  var PUNCT_RE = /[。、．，！？!?.,・\s　]/g;
+  function noPunct(x) { return str(String(x == null ? '' : x)).replace(PUNCT_RE, ''); }
+  function looseEq(a, b) {
+    function n(x) { try { x = String(x).normalize('NFKC'); } catch (e) { x = String(x); } return x.replace(PUNCT_RE, ''); }
+    return n(a) === n(b);
   }
   async function generateQuiz(kind, qtype, scope, say) {
     var meta = getMeta(), key = str(meta.geminiKey);
@@ -794,11 +799,27 @@ button{cursor:pointer}
     var tg = pickTargets(kind, scope);
     if (!tg.slots.length) throw new Error('這個範圍裡沒有內容可以出題。');
     var types = assignTypes(kind, qtype, tg.slots);
-    var prompt = buildQuizPrompt(kind, types, tg.slots);
-    var text = await geminiGenerate(key, meta.geminiModel || GEMINI_DEFAULT_MODEL, prompt, say);
-    var qs = normalizeQuestions(parseQuizJson(text), tg.slots, kind, types);
-    if (!qs.length) throw new Error('AI 這次產生的題目格式都不完整，請再按一次出題。');
+    var model = meta.geminiModel || GEMINI_DEFAULT_MODEL;
+    var got = {}, lastErr = null;
+    QZ.dropped = 0;
+    // 第一次出全部；有題目缺少或格式不對被丟掉，就只針對缺的那幾題再請 AI 補，最多補 2 次。
+    for (var round = 0; round < 3; round++) {
+      var need = []; tg.slots.forEach(function (_, i) { if (!got[i]) need.push(i); });
+      if (!need.length) break;
+      if (round > 0 && say) say('有 ' + need.length + ' 題格式不完整，請 AI 補題中…');
+      var subSlots = need.map(function (i) { return tg.slots[i]; }), subTypes = need.map(function (i) { return types[i]; });
+      try {
+        var text = await geminiGenerate(key, model, buildQuizPrompt(kind, subTypes, subSlots), say);
+        normalizeQuestions(parseQuizJson(text), subSlots, kind, subTypes).forEach(function (q) {
+          var real = need[q._si]; q._si = real; got[real] = q;
+        });
+      } catch (e) { lastErr = e; if (round === 0) throw e; break; }
+    }
+    var qs = Object.keys(got).map(function (k) { return got[k]; }).sort(function (a, b) { return a._si - b._si; });
+    qs.forEach(function (q) { delete q._si; });
+    if (!qs.length) throw (lastErr || new Error('AI 這次產生的題目格式都不完整，請再按一次出題。'));
     qs.forEach(function (q, i) { q.no = i + 1; });   // 原本的題號；練完只留錯題後，複習畫面仍顯示原題號
+    QZ.wanted = tg.slots.length;
     return qs;
   }
 
@@ -2928,7 +2949,7 @@ button{cursor:pointer}
         items: JSON.stringify(qs), createdAt: now, updatedAt: now });
       pruneQuiz();
       QZ.busy = false; renderQuizSetup();
-      if (qs.length < QUIZ_N && p.kind === 'grammar') toast('AI 這次只產生了 ' + qs.length + ' 題可用的題目。');
+      if (qs.length < (QZ.wanted || QUIZ_N)) toast('AI 補了兩次還是只產生 ' + qs.length + ' 題可用的題目（' + QZ.dropped + ' 題格式不對被略過），這次先練這些。', 6000);
       runQuiz(id);
     } catch (e) {
       QZ.busy = false; renderQuizSetup();
