@@ -127,6 +127,7 @@ button{cursor:pointer}
 .f input,.f textarea{display:block;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px;line-height:1.55}
 .f textarea{resize:vertical;min-height:70px}
 .f .big{font:600 24px/1.3 var(--f-min)}
+.f select.model-sel{display:block;width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:16px}
 .f input:focus,.f textarea:focus,.g-title:focus,.g-body:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
 .g-title{display:block;width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:700 22px/1.4 var(--f-min)}
 .scanbar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;margin:12px 0}
@@ -378,7 +379,18 @@ button{cursor:pointer}
 
   // ---------- Gemini 辨識（選用）：把整張照片直接交給 Gemini 讀，不用本機的前處理／表格偵測 ----------
   // 好處：不怕頁面彎曲、彩色墨水、虛線、對角分割的表頭；壞處：圖片會送到 Google，需要使用者自己的 API Key。
-  var GEMINI_DEFAULT_MODEL = 'gemini-3.8-flash';
+  var GEMINI_DEFAULT_MODEL = 'gemini-3.5-flash-lite';
+  // 設定裡的模型下拉選單（2026-10-24）。存的值不在清單裡（例如以前手打的舊名稱），一律當作預設值。
+  var GEMINI_MODELS = [
+    ['gemini-3.5-flash-lite', '預設'],
+    ['gemini-3.1-flash-lite', ''],
+    ['gemini-3.8-flash', '額度少'],
+    ['gemini-3.6-flash', '']
+  ];
+  function geminiModel() {
+    var m = str(getMeta().geminiModel);
+    return GEMINI_MODELS.some(function (x) { return x[0] === m; }) ? m : GEMINI_DEFAULT_MODEL;
+  }
   var GEMINI_PROMPT = [
     '你是精確的 OCR 與版面還原工具，請閱讀這張跟日文學習有關的照片（課本、筆記或手寫），把看得到的文字內容整理成純文字輸出：',
     '1. 保留原本的段落、換行與閱讀順序（由上到下、由左到右）。',
@@ -460,7 +472,7 @@ button{cursor:pointer}
     var msg = 'Gemini API 錯誤（' + r.status + '）';
     if (r.status === 400 || r.status === 403) msg = 'Gemini API Key 好像不對，或這個 Key 沒有權限，請到設定重新貼一次。';
     else if (r.status === 429) msg = 'Gemini 這一分鐘的免費額度用完了，請等一下再試一次。';
-    else if (r.status === 503) msg = 'Google 的這個模型現在人太多，已經自動重試幾次還是忙碌中。可以晚一點再試，或到設定把模型名稱換成別的（例如 gemini-2.5-flash）。';
+    else if (r.status === 503) msg = 'Google 的這個模型現在人太多，已經自動重試幾次還是忙碌中。可以晚一點再試，或到設定換一個模型。';
     else if (t) msg += '：' + t.slice(0, 160);
     var e2 = new Error(msg); e2.status = r.status; throw e2;
   }
@@ -800,7 +812,7 @@ button{cursor:pointer}
     var tg = pickTargets(kind, scope);
     if (!tg.slots.length) throw new Error('這個範圍裡沒有內容可以出題。');
     var types = assignTypes(kind, qtype, tg.slots);
-    var model = meta.geminiModel || GEMINI_DEFAULT_MODEL;
+    var model = geminiModel();
     var got = {}, lastErr = null;
     QZ.dropped = 0;
     // 第一次出全部；有題目缺少或格式不對被丟掉，就只針對缺的那幾題再請 AI 補，最多補 2 次。
@@ -1170,7 +1182,7 @@ button{cursor:pointer}
       '',
       '要查的單字：'
     ].concat(inputs.map(function (x) { return '- ' + x; })).join('\n');
-    var text = await geminiGenerate(key, meta.geminiModel || GEMINI_DEFAULT_MODEL, prompt, say);
+    var text = await geminiGenerate(key, geminiModel(), prompt, say);
     var t = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, ''), obj = null;
     try { obj = JSON.parse(t); } catch (e) { var a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a >= 0 && b > a) { try { obj = JSON.parse(t.slice(a, b + 1)); } catch (e2) {} } }
     var arr = obj && Array.isArray(obj.items) ? obj.items : (Array.isArray(obj) ? obj : null);
@@ -2632,7 +2644,7 @@ button{cursor:pointer}
           prefix = files.length > 1 ? '第 ' + (i + 1) + '/' + files.length + ' 張：' : '';
           say(prefix + (useGemini ? '傳送到 Gemini 辨識中…' : '整理圖片'));
           var res = useGemini
-            ? await Promise.race([geminiScan(files[i], gm.geminiKey, gm.geminiModel || GEMINI_DEFAULT_MODEL, function (t) { say(prefix + t); }), cancelP])
+            ? await Promise.race([geminiScan(files[i], gm.geminiKey, geminiModel(), function (t) { say(prefix + t); }), cancelP])
             : await Promise.race([scanImage(files[i], worker, { tables: getMeta().ocrTables !== false }, function (t, withPct) {
                 stage = prefix + t; showPct = !!withPct; say(stage);
               }, chk), cancelP]);
@@ -2750,14 +2762,14 @@ button{cursor:pointer}
     });
     function saveKey() { setMeta({ geminiKey: keyIn.value.trim() }); }
     keyIn.addEventListener('change', saveKey); keyIn.addEventListener('blur', saveKey);
-    var modelIn = h('input', { type: 'text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: GEMINI_DEFAULT_MODEL });
-    modelIn.value = meta.geminiModel || '';
-    function saveModel() { setMeta({ geminiModel: modelIn.value.trim() }); }
-    modelIn.addEventListener('change', saveModel); modelIn.addEventListener('blur', saveModel);
+    var modelIn = h('select', { class: 'model-sel' }, GEMINI_MODELS.map(function (x) { return h('option', { value: x[0] }, x[0] + (x[1] ? '（' + x[1] + '）' : '')); }));
+    modelIn.value = geminiModel();
+    modelIn.addEventListener('change', function () { setMeta({ geminiModel: modelIn.value }); });
     var geminiBox = h('div', { style: 'margin-top:12px' },
       h('label', { class: 'f' }, h('span', { text: 'Gemini API Key' }),
         h('div', { style: 'display:flex;gap:8px;align-items:center' }, keyIn, showBtn)),
-      h('label', { class: 'f', style: 'margin-top:10px' }, h('span', { text: '模型名稱（不確定就留預設）' }), modelIn),
+      h('label', { class: 'f', style: 'margin-top:10px' }, h('span', { text: '模型（不確定就用預設）' }), modelIn,
+        h('span', { class: 'small', style: 'display:block;margin-top:6px', text: 'flash-lite：免費額度多（每天約幾百次），出題已針對它調整。flash：比較聰明，但免費每天只有約 20 次，容易用完。' })),
       h('p', { class: 'small' },
         '到 ', h('a', { href: 'https://aistudio.google.com/apikey', target: '_blank', rel: 'noopener', text: 'Google AI Studio' }),
         ' 用 Google 帳號免費申請一組 Key。「練習」分頁的 AI 出題一定要有這組 Key；掃描圖片則要另外勾選下面的選項才會改用 Gemini。資料會直接從這支手機傳到 Google 的 Gemini API（不會經過我們），需要網路，也可能受 Google 免費額度限制而暫時失敗。這組 Key 只存在這個瀏覽器裡，不會包含在備份檔案中，換手機要重新輸入一次。'));
